@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Test Started</h2>
+
+<p>Test ID: {{ test_id }}</p>
+
+<form method="POST" action="/submit-test/{{ test_id }}/">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Submit Test</button>
+</form>
+{% endblock %}

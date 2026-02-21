@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<p>Welcome {{ request.user.username }}</p>
+
+<a href="/mock-tests/" class="btn btn-primary">Start Mock Test</a>
+{% endblock %}
