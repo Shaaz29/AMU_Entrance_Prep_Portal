@@ -1,0 +1,68 @@
+/* ===== GLOBAL ===== */
+body {
+    background-color: #f5f7fb;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* ===== NAVBAR ===== */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-size: 22px;
+    letter-spacing: 1px;
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #ffc107 !important;
+}
+
+
+/* ===== BUTTONS ===== */
+.btn-outline-light:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: black;
+}
+
+
+/* ===== CONTAINER ===== */
+.container {
+    background: transparent;
+}
+
+
+/* ===== CARD STYLE (for dashboard, tests etc) ===== */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+
+/* ===== HERO SECTION (Home Page) ===== */
+.hero {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: white;
+    padding: 80px 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.hero h1 {
+    font-weight: 700;
+}
+
+
+/* ===== FOOTER ===== */
+footer {
+    margin-top: 60px;
+}
