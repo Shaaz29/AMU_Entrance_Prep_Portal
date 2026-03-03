@@ -1,55 +1,81 @@
 {% extends 'base.html' %}
-
 {% block content %}
 
-<!-- HERO SECTION -->
-<div class="bg-primary text-white p-5 rounded text-center">
-    <h1 class="display-4">AMU Entrance Prep Portal</h1>
-    <p class="lead">Practice Previous Year Papers for AMU Science Faculty</p>
-
-    <a href="/register/" class="btn btn-light btn-lg m-2">Get Started</a>
-    <a href="/login/" class="btn btn-outline-light btn-lg m-2">Login</a>
+<!-- 🔥 HERO SECTION -->
+<div class="text-center py-5">
+    <h1 class="fw-bold">AMU Entrance Preparation Portal</h1>
+    <p class="lead mt-3">
+        Practice Previous Year Papers & Full-Length Mock Tests
+        in Real Exam Environment.
+    </p>
+    <a href="/mock-tests/" class="btn btn-primary btn-lg mt-3">
+        Start Practicing
+    </a>
 </div>
 
 
-<!-- COURSES SECTION -->
+<!-- 🔥 AVAILABLE MOCK TESTS -->
 <div class="mt-5">
-    <h2 class="text-center mb-4">Entrance Exams Covered</h2>
+    <h2 class="text-center mb-4">Available Mock Tests</h2>
 
-    <div class="row text-center">
+    <div class="row g-4">
 
-        <div class="col-md-3">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5>MCA Entrance</h5>
-                    <p>Previous Year Papers & Mock Tests</p>
+        <!-- Previous Year Paper 1 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">AMU Previous Year Paper 2023</h5>
+                    <p class="card-text">
+                        Real AMU entrance exam paper with full solutions.
+                    </p>
+                    <a href="/mock-tests/2023/" class="btn btn-outline-primary">
+                        Attempt Test
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5>B.Tech Entrance</h5>
-                    <p>Practice Tests & Solutions</p>
+        <!-- Previous Year Paper 2 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">AMU Previous Year Paper 2022</h5>
+                    <p class="card-text">
+                        Practice in real exam pattern format.
+                    </p>
+                    <a href="/mock-tests/2022/" class="btn btn-outline-primary">
+                        Attempt Test
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5>BCA Entrance</h5>
-                    <p>Topic-wise Questions</p>
+        <!-- Additional Mock 1 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Full-Length Mock Test 1</h5>
+                    <p class="card-text">
+                        Designed based on latest AMU exam trend.
+                    </p>
+                    <a href="/mock-tests/mock1/" class="btn btn-outline-primary">
+                        Attempt Test
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5>MSc Data Science</h5>
-                    <p>Exam Preparation Tests</p>
+        <!-- Additional Mock 2 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Full-Length Mock Test 2</h5>
+                    <p class="card-text">
+                        Advanced level practice for final revision.
+                    </p>
+                    <a href="/mock-tests/mock2/" class="btn btn-outline-primary">
+                        Attempt Test
+                    </a>
                 </div>
             </div>
         </div>
@@ -58,25 +84,25 @@
 </div>
 
 
-<!-- FEATURES SECTION -->
-<div class="mt-5">
-    <h2 class="text-center mb-4">Why Choose This Portal?</h2>
+<!-- 🔥 WHY CHOOSE SECTION -->
+<div class="mt-5 text-center">
+    <h2 class="mb-4">Why Choose This Portal?</h2>
 
-    <div class="row text-center">
+    <div class="row">
 
         <div class="col-md-4">
-            <h4>📄 Previous Year Papers</h4>
-            <p>Authentic AMU exam papers for practice</p>
+            <h5>📄 Previous Year Papers</h5>
+            <p>Authentic AMU exam papers for accurate preparation.</p>
         </div>
 
         <div class="col-md-4">
-            <h4>🧠 Smart Mock Tests</h4>
-            <p>Real exam-like environment</p>
+            <h5>🧠 Real Exam Interface</h5>
+            <p>Practice in real entrance exam environment with timer.</p>
         </div>
 
         <div class="col-md-4">
-            <h4>📊 Instant Results</h4>
-            <p>Analyze performance after test</p>
+            <h5>📊 Instant Results</h5>
+            <p>Detailed explanation and performance analysis.</p>
         </div>
 
     </div>
