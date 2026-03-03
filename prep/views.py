@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 # ================= HOME PAGE =================
@@ -17,10 +18,16 @@ def register(request):
         password = request.POST.get('password')
 
         if User.objects.filter(username=username).exists():
-            return render(request, 'register.html', {'error': 'Username already exists'})
+            messages.error(request, "Username already exists")
+            return redirect('register')
 
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
         user.save()
+        messages.success(request, "Account created successfully. Please login.")
         return redirect('login')
 
     return render(request, 'register.html')
@@ -28,6 +35,9 @@ def register(request):
 
 # ================= LOGIN =================
 def user_login(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -38,7 +48,8 @@ def user_login(request):
             login(request, user)
             return redirect('dashboard')
         else:
-            return render(request, 'login.html', {'error': 'Invalid credentials'})
+            messages.error(request, "Invalid username or password")
+            return redirect('login')
 
     return render(request, 'login.html')
 
@@ -58,7 +69,17 @@ def dashboard(request):
 # ================= MOCK TEST LIST =================
 @login_required
 def mock_tests(request):
-    return render(request, 'mock_tests.html')
+    """
+    Only:
+    1 Previous Year Paper
+    2 Additional Mock Tests
+    """
+    tests = [
+        {"id": 1, "name": "Previous Year Paper"},
+        {"id": 2, "name": "Mock Test 1"},
+        {"id": 3, "name": "Mock Test 2"},
+    ]
+    return render(request, 'mock_tests.html', {"tests": tests})
 
 
 # ================= START TEST =================
@@ -70,33 +91,38 @@ def start_test(request, test_id):
 # ================= SUBMIT TEST =================
 @login_required
 def submit_test(request, test_id):
-    # Later you will calculate score here
+    # Later: Calculate real score from database
+    score = 85  # Temporary static score
     return redirect('result', test_id=test_id)
 
 
 # ================= RESULT =================
 @login_required
 def result(request, test_id):
-    return render(request, 'result.html', {'test_id': test_id, 'score': 85})
+    score = 85  # Temporary
+    return render(request, 'result.html', {
+        'test_id': test_id,
+        'score': score
+    })
 
 
-# ================= UPLOAD QUESTIONS =================
+# ================= UPLOAD QUESTIONS (ADMIN ONLY) =================
 @login_required
 def upload_questions(request):
-    """
-    Admin can upload Excel file containing questions.
-    Later we will process file and insert into database.
-    """
+
+    # Only superuser can access
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
     if request.method == 'POST':
         test_name = request.POST.get('test_name')
         uploaded_file = request.FILES.get('file')
 
         if not uploaded_file:
-            return render(request, 'upload.html', {'error': 'Please select a file'})
+            messages.error(request, "Please select a file")
+            return redirect('upload_questions')
 
-        # For now just show success message
-        return render(request, 'upload.html', {
-            'message': f'File uploaded successfully for {test_name}'
-        })
+        messages.success(request, f'File uploaded successfully for {test_name}')
+        return redirect('upload_questions')
 
     return render(request, 'upload.html')
