@@ -5,7 +5,6 @@ body {
     scroll-behavior: smooth;
 }
 
-
 /* ===== NAVBAR ===== */
 .navbar {
     background: linear-gradient(90deg, #0d6efd, #6610f2) !important;
@@ -37,7 +36,6 @@ body {
     transform: translateY(-2px);
 }
 
-
 /* ===== BUTTONS ===== */
 .btn-primary {
     border-radius: 30px;
@@ -55,14 +53,12 @@ body {
     color: black;
 }
 
-
 /* ===== CONTAINER ===== */
 .container {
     background: transparent;
 }
 
-
-/* ===== CARD STYLE (for tests etc) ===== */
+/* ===== CARD STYLE ===== */
 .card {
     border: none;
     border-radius: 15px;
@@ -78,7 +74,6 @@ body {
 .card-title {
     font-weight: 600;
 }
-
 
 /* ===== HERO SECTION ===== */
 .hero {
@@ -100,13 +95,11 @@ body {
     opacity: 0.9;
 }
 
-
-/* ===== MOCK TEST SECTION ===== */
+/* ===== SECTION TITLE ===== */
 .section-title {
     font-weight: 700;
     margin-bottom: 30px;
 }
-
 
 /* ===== FOOTER ===== */
 footer {
@@ -119,7 +112,6 @@ footer {
 footer:hover {
     color: white;
 }
-
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
