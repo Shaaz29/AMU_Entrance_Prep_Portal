@@ -13,7 +13,7 @@ load_dotenv(BASE_DIR / '.env')
 # ================= SECURITY =================
 SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-secret-key-for-dev')
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
@@ -35,7 +35,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 
-    # 🔥 For deployment static files
+    # Static file handling
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -100,11 +100,15 @@ USE_TZ = True
 
 # ================= STATIC FILES =================
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🔥 WhiteNoise settings
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise storage
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # ================= MEDIA FILES =================
