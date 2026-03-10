@@ -2,78 +2,86 @@
 {% block content %}
 
 <!-- HERO SECTION -->
-<div class="text-center py-5">
+<div class="text-center py-5 bg-light rounded">
     <h1 class="fw-bold">AMU Entrance Preparation Portal</h1>
+
     <p class="lead mt-3">
-        Practice Previous Year Papers & Full-Length Mock Tests
-        in Real Exam Environment.
+        Practice AMU Entrance Exams with <strong>5000+ solved questions</strong>
+        based on previous year papers.
     </p>
-    <a href="/mock-tests/" class="btn btn-primary btn-lg mt-3">
+
+    <p>
+        Prepare for <strong>BTech, MCA, MSc Data Science, and MSc Cyber Security</strong>
+        in a real exam environment.
+    </p>
+
+    <a href="{% url 'mock_tests' %}" class="btn btn-primary btn-lg mt-3">
         Start Practicing
     </a>
 </div>
 
-<!-- AVAILABLE MOCK TESTS -->
+
+<!-- COURSES SECTION -->
 <div class="mt-5">
-    <h2 class="text-center mb-4">Available Mock Tests</h2>
+    <h2 class="text-center mb-4">Available Entrance Courses</h2>
 
     <div class="row g-4">
 
-        <!-- Previous Year Paper 2023 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">AMU Previous Year Paper 2023</h5>
+        <!-- BTECH -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">BTech Entrance</h5>
                     <p class="card-text">
-                        Real AMU entrance exam paper with full solutions.
+                        Practice AMU BTech entrance questions based on previous exams.
                     </p>
-                    <a href="/mock-tests/2023/" class="btn btn-outline-primary">
-                        Attempt Test
+                    <a href="{% url 'mock_tests' %}" class="btn btn-outline-primary">
+                        Start Practice
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Previous Year Paper 2022 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">AMU Previous Year Paper 2022</h5>
+        <!-- MCA -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">MCA Entrance</h5>
                     <p class="card-text">
-                        Practice in real exam pattern format.
+                        Logical reasoning, mathematics, and computer aptitude tests.
                     </p>
-                    <a href="/mock-tests/2022/" class="btn btn-outline-primary">
-                        Attempt Test
+                    <a href="{% url 'mock_tests' %}" class="btn btn-outline-primary">
+                        Start Practice
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Full Length Mock 1 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Full-Length Mock Test 1</h5>
+        <!-- DATA SCIENCE -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">MSc Data Science</h5>
                     <p class="card-text">
-                        Designed based on latest AMU exam trend.
+                        Practice statistics, programming, and analytical questions.
                     </p>
-                    <a href="/mock-tests/mock1/" class="btn btn-outline-primary">
-                        Attempt Test
+                    <a href="{% url 'mock_tests' %}" class="btn btn-outline-primary">
+                        Start Practice
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Full Length Mock 2 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Full-Length Mock Test 2</h5>
+        <!-- CYBER SECURITY -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">MSc Cyber Security</h5>
                     <p class="card-text">
-                        Advanced level practice for final revision.
+                        Practice security concepts, networking, and logical reasoning.
                     </p>
-                    <a href="/mock-tests/mock2/" class="btn btn-outline-primary">
-                        Attempt Test
+                    <a href="{% url 'mock_tests' %}" class="btn btn-outline-primary">
+                        Start Practice
                     </a>
                 </div>
             </div>
@@ -82,25 +90,51 @@
     </div>
 </div>
 
-<!-- WHY CHOOSE SECTION -->
+
+<!-- STATS SECTION -->
 <div class="mt-5 text-center">
-    <h2 class="mb-4">Why Choose This Portal?</h2>
+    <h2 class="mb-4">Platform Highlights</h2>
 
     <div class="row">
 
         <div class="col-md-4">
-            <h5>📄 Previous Year Papers</h5>
-            <p>Authentic AMU exam papers for accurate preparation.</p>
+            <h3 class="fw-bold">5000+</h3>
+            <p>Questions based on previous AMU entrance exams</p>
         </div>
 
         <div class="col-md-4">
-            <h5>🧠 Real Exam Interface</h5>
-            <p>Practice in real entrance exam environment with timer.</p>
+            <h3 class="fw-bold">Real Exam Interface</h3>
+            <p>Practice tests designed like the real AMU entrance exam</p>
         </div>
 
         <div class="col-md-4">
-            <h5>📊 Instant Results</h5>
-            <p>Detailed explanation and performance analysis.</p>
+            <h3 class="fw-bold">Instant Results</h3>
+            <p>Get your score immediately after completing a test</p>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- WHY CHOOSE SECTION -->
+<div class="mt-5 text-center">
+    <h2 class="mb-4">Why Use This Portal?</h2>
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <h5>📄 Previous Year Questions</h5>
+            <p>Carefully selected questions from previous AMU entrance exams.</p>
+        </div>
+
+        <div class="col-md-4">
+            <h5>⏱ Real Exam Environment</h5>
+            <p>Practice with timer and real test interface.</p>
+        </div>
+
+        <div class="col-md-4">
+            <h5>📊 Performance Tracking</h5>
+            <p>Track your preparation progress with detailed results.</p>
         </div>
 
     </div>
