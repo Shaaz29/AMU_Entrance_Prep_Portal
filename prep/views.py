@@ -5,42 +5,38 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 # Import your models
-from .models import MockTest
 
+from .models import MockTest, Question, Result
 
 # ================= HOME PAGE =================
+
 def home(request):
     return render(request, 'home.html')
 
-
 # ================= REGISTER =================
+
 def register(request):
     if request.method == 'POST':
-
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # Check empty fields
         if not username or not email or not password:
             messages.error(request, "All fields are required")
             return redirect('register')
 
-        # Check username exists
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already exists")
             return redirect('register')
 
-        # Check email exists
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already registered")
             return redirect('register')
 
-        # Create user
         user = User.objects.create_user(
             username=username,
             email=email,
-            password=password
+            password=password,
         )
 
         user.save()
@@ -50,15 +46,13 @@ def register(request):
 
     return render(request, 'register.html')
 
-
 # ================= LOGIN =================
-def user_login(request):
 
+def user_login(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
 
     if request.method == 'POST':
-
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -68,78 +62,93 @@ def user_login(request):
             login(request, user)
             return redirect('dashboard')
 
-        else:
-            messages.error(request, "Invalid username or password")
-            return redirect('login')
+        messages.error(request, "Invalid username or password")
+        return redirect('login')
 
     return render(request, 'login.html')
 
-
 # ================= LOGOUT =================
+
 def user_logout(request):
     logout(request)
     return redirect('home')
 
-
 # ================= DASHBOARD =================
+
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
 
-
 # ================= MOCK TEST LIST =================
+
 @login_required
 def mock_tests(request):
-
-    # Load tests from database
     tests = MockTest.objects.all()
-
-    return render(request, 'mock_tests.html', {"tests": tests})
-
+    return render(request, 'mock_test.html', {"tests": tests})
 
 # ================= START TEST =================
+
 @login_required
 def start_test(request, test_id):
-
     test = MockTest.objects.get(id=test_id)
+    questions = Question.objects.filter(mocktest=test)
 
     return render(request, 'start_test.html', {
-        'test': test
+        'test': test,
+        'questions': questions,
     })
 
-
 # ================= SUBMIT TEST =================
+
 @login_required
 def submit_test(request, test_id):
 
-    # Later: real scoring logic
-    score = 85
+    test = MockTest.objects.get(id=test_id)
+    questions = Question.objects.filter(mocktest=test)
 
-    return redirect('result', test_id=test_id)
+    score = 0
+    total = questions.count()
 
+    for q in questions:
 
-# ================= RESULT =================
-@login_required
-def result(request, test_id):
+        user_answer = request.POST.get(f"q{q.id}")
 
-    score = 85
+        if user_answer and user_answer == q.correct_answer:
+            score += 1
+
+    # Save result
+    Result.objects.create(
+        user=request.user,
+        mocktest=test,
+        score=score
+    )
 
     return render(request, 'result.html', {
+        'test': test,
+        'score': score,
+        'total': total
+    })
+
+# ================= RESULT =================
+
+@login_required
+def result(request, test_id):
+    score = 85
+    return render(request, 'result.html', {
         'test_id': test_id,
-        'score': score
+        'score': score,
     })
 
 
-# ================= UPLOAD QUESTIONS (ADMIN ONLY) =================
+# ================= UPLOAD QUESTIONS =================
+
 @login_required
 def upload_questions(request):
-
     if not request.user.is_superuser:
         messages.error(request, "You are not authorized to access this page.")
         return redirect('dashboard')
 
     if request.method == 'POST':
-
         test_name = request.POST.get('test_name')
         uploaded_file = request.FILES.get('file')
 
@@ -147,7 +156,8 @@ def upload_questions(request):
             messages.error(request, "Please select a file")
             return redirect('upload_questions')
 
-        messages.success(request, f'File uploaded successfully for {test_name}')
+        messages.success(request, f"File uploaded successfully for {test_name}")
         return redirect('upload_questions')
 
     return render(request, 'upload.html')
+

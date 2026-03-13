@@ -1,9 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<div class="container mt-5 text-center">
+
 <h2>Test Result</h2>
 
-<p>Your test (ID: {{ test_id }}) has been submitted.</p>
+<div class="card p-4 mt-4">
 
-<a href="/dashboard/" class="btn btn-primary">Back to Dashboard</a>
+<h3>{{ test.course.name }} {{ test.year }}</h3>
+
+<h1 class="text-success mt-3">
+Score: {{ score }} / {{ total }}
+</h1>
+
+<a href="/mock-tests/" class="btn btn-primary mt-3">
+Back to Mock Tests
+</a>
+
+</div>
+
+</div>
+
 {% endblock %}

@@ -8,30 +8,25 @@
 
 <div class="list-group">
 
-    {% for test in tests %}
+{% for test in tests %}
 
-    <a href="{% url 'start_test' test.id %}" class="list-group-item list-group-item-action">
+<a href="{% url 'start_test' test.id %}" class="list-group-item list-group-item-action">
 
-        <h5 class="mb-1">
-            {{ test.course.name }} {{ test.year }}
-        </h5>
+<h5 class="mb-1">
+Mock Test {{ test.id }}
+</h5>
 
-        <small>
-            Duration: {{ test.duration }} minutes
-        </small>
+</a>
 
-    </a>
+{% empty %}
 
-    {% empty %}
+<div class="alert alert-warning">
+No mock tests available yet.
+</div>
 
-    <div class="alert alert-warning">
-        No mock tests available yet.
-    </div>
-
-    {% endfor %}
+{% endfor %}
 
 </div>
-```
 
 </div>
 
