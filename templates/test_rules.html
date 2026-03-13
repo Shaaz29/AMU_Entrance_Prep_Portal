@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <div class="card p-4 p-md-5 rules-card mx-auto">
+    <p class="rules-label mb-2">Before You Begin</p>
+    <h2 class="mb-2">{{ test.course.name }} {{ test.year }}</h2>
+    <p class="text-muted mb-4">Please read and accept the instructions before starting the test.</p>
+
+    <div class="rules-list">
+      <div class="rule-item">
+        <span class="rule-dot"></span>
+        <p class="mb-0">Total duration is {{ test.duration }} minutes. The test will auto-submit when time is over.</p>
+      </div>
+      <div class="rule-item">
+        <span class="rule-dot"></span>
+        <p class="mb-0">Each question can be attempted only once in this submission.</p>
+      </div>
+      <div class="rule-item">
+        <span class="rule-dot"></span>
+        <p class="mb-0">Do not refresh the page during the test to avoid losing progress.</p>
+      </div>
+      <div class="rule-item">
+        <span class="rule-dot"></span>
+        <p class="mb-0">After submission, result, score and explanations will be shown.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{% url 'start_test' test.id %}" class="mt-4" id="rulesForm">
+      {% csrf_token %}
+      <input type="hidden" name="accept_rules" value="yes">
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" value="1" id="acceptRulesCheck">
+        <label class="form-check-label" for="acceptRulesCheck">
+          I have read and accept all test instructions.
+        </label>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="/mock-tests/" class="btn btn-outline-secondary px-4">Back</a>
+        <button type="submit" class="btn btn-primary px-4" id="startTestBtn" disabled>Accept and Start Test</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var checkbox = document.getElementById('acceptRulesCheck');
+    var startButton = document.getElementById('startTestBtn');
+
+    checkbox.addEventListener('change', function () {
+      startButton.disabled = !checkbox.checked;
+    });
+  });
+</script>
+
+{% endblock %}

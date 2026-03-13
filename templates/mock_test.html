@@ -4,7 +4,12 @@
 
 <div class="container mt-4">
 
-<h2 class="text-center mb-4">Available Mock Tests</h2>
+{% if course %}
+<h2 class="text-center mb-1">{{ course.name }} Mock Tests</h2>
+<p class="text-center text-muted mb-4">Select a year to begin the test</p>
+{% else %}
+<h2 class="text-center mb-4">All Available Mock Tests</h2>
+{% endif %}
 
 <div class="list-group">
 
@@ -13,15 +18,16 @@
 <a href="{% url 'start_test' test.id %}" class="list-group-item list-group-item-action">
 
 <h5 class="mb-1">
-Mock Test {{ test.id }}
+{{ test.course.name }} — {{ test.year }}
 </h5>
+<small class="text-muted">Duration: {{ test.duration }} minutes</small>
 
 </a>
 
 {% empty %}
 
 <div class="alert alert-warning">
-No mock tests available yet.
+No mock tests available yet for this course.
 </div>
 
 {% endfor %}

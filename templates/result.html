@@ -2,24 +2,208 @@
 
 {% block content %}
 
-<div class="container mt-5 text-center">
+<div class="container mt-5 result-page">
+	<div class="card p-4 p-md-5 result-summary-card">
+		<div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+			<div>
+				<p class="result-label mb-1">Performance Report</p>
+				<h2 class="mb-1">{{ test.course.name }} {{ test.year }}</h2>
+				<p class="text-muted mb-0">Submitted answers with detailed explanations</p>
+			</div>
+			<div class="text-end">
+				<div class="result-score">{{ score }} <span>/ {{ total }}</span></div>
+				<p class="mb-0 text-muted">Final Score</p>
+			</div>
+		</div>
+		<div class="mt-4 d-flex flex-wrap gap-2">
+			{% if total_attempts %}
+				<div class="rank-pill">Rank: {{ rank }} / {{ total_attempts }}</div>
+				<div class="rank-pill">Top {{ rank_percentile }}%</div>
+			{% endif %}
+		</div>
+		{% if performance_remark %}
+			<div class="remark-box mt-3">
+				<p class="remark-title mb-1">Remark</p>
+				<p class="mb-0">{{ performance_remark }}</p>
+			</div>
+		{% endif %}
+		<div class="mt-3 d-flex flex-wrap gap-2">
+			<a href="/mock-tests/" class="btn btn-primary px-4">Back to Mock Tests</a>
+		</div>
+	</div>
 
-<h2>Test Result</h2>
+	{% if review_items %}
+		<div class="mt-4 result-stats-grid">
+			<div class="card result-stat-card stat-correct">
+				<div class="card-body">
+					<p class="stat-title mb-1">Correct</p>
+					<h4 class="mb-0">{{ correct_count }} <span class="stat-percent">({{ correct_percentage }}%)</span></h4>
+				</div>
+			</div>
+			<div class="card result-stat-card stat-incorrect">
+				<div class="card-body">
+					<p class="stat-title mb-1">Incorrect</p>
+					<h4 class="mb-0">{{ incorrect_count }} <span class="stat-percent">({{ incorrect_percentage }}%)</span></h4>
+				</div>
+			</div>
+			<div class="card result-stat-card stat-unattempted">
+				<div class="card-body">
+					<p class="stat-title mb-1">Not Attempted</p>
+					<h4 class="mb-0">{{ not_attempted_count }} <span class="stat-percent">({{ not_attempted_percentage }}%)</span></h4>
+				</div>
+			</div>
+		</div>
 
-<div class="card p-4 mt-4">
+		<div class="mt-3 d-flex flex-wrap gap-2">
+			<button class="btn btn-outline-primary result-filter-btn active" type="button" data-filter="all">All Questions</button>
+			<button class="btn btn-outline-success result-filter-btn" type="button" data-filter="correct">Correct</button>
+			<button class="btn btn-outline-danger result-filter-btn" type="button" data-filter="incorrect">Incorrect</button>
+			<button class="btn btn-outline-secondary result-filter-btn" type="button" data-filter="not_attempted">Not Attempted</button>
+		</div>
 
-<h3>{{ test.course.name }} {{ test.year }}</h3>
+		<div class="mt-4" id="review-list">
+			{% for item in review_items %}
+				<div class="card mb-3 result-review-card" data-review-status="{{ item.review_status }}">
+					<div class="card-body">
+						<div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+							<h5 class="mb-0">Question {{ item.number }}</h5>
+							{% if item.is_correct %}
+								<span class="badge rounded-pill text-bg-success px-3 py-2">Correct</span>
+							{% elif item.is_attempted %}
+								<span class="badge rounded-pill text-bg-danger px-3 py-2">Incorrect</span>
+							{% else %}
+								<span class="badge rounded-pill text-bg-secondary px-3 py-2">Not Attempted</span>
+							{% endif %}
+						</div>
 
-<h1 class="text-success mt-3">
-Score: {{ score }} / {{ total }}
-</h1>
+						<p class="mt-3 mb-2 fw-semibold">{{ item.question.text }}</p>
 
-<a href="/mock-tests/" class="btn btn-primary mt-3">
-Back to Mock Tests
-</a>
+						{% if item.question.image %}
+							<div class="diagram-wrap mb-3">
+								<img src="{{ item.question.image.url }}" class="img-fluid rounded" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
+								<div class="diagram-fallback d-none">Diagram image is not available.</div>
+							</div>
+						{% endif %}
 
+						<div class="row g-3 mt-1">
+							<div class="col-md-6">
+								<div class="answer-box user-answer-box">
+									<p class="mb-1 small text-uppercase">Your Answer</p>
+									<p class="mb-0 fw-semibold">{{ item.user_answer }}</p>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="answer-box correct-answer-box">
+									<p class="mb-1 small text-uppercase">Correct Answer</p>
+									<p class="mb-0 fw-semibold">{{ item.correct_answer }}</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="explanation-box mt-3">
+							<p class="mb-1 small text-uppercase">Explanation</p>
+							<p class="mb-0">
+								{% if item.explanation %}
+									{{ item.explanation }}
+								{% else %}
+									Explanation is not available for this question.
+								{% endif %}
+							</p>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+			<p class="text-muted d-none mt-3" id="no-filter-message">No questions available in this filter.</p>
+		</div>
+	{% endif %}
 </div>
 
-</div>
+<script>
+	function handleDiagramImageError(img) {
+		if (!img.dataset.fallbackTried) {
+			img.dataset.fallbackTried = "1";
+			var originalSrc = img.getAttribute("src") || "";
+			var fallbackSources = buildImageFallbackSources(originalSrc);
+
+			if (fallbackSources.length) {
+				img.dataset.fallbackQueue = JSON.stringify(fallbackSources);
+				img.setAttribute("src", fallbackSources[0]);
+				return;
+			}
+		} else {
+			var pending = JSON.parse(img.dataset.fallbackQueue || "[]");
+			pending.shift();
+			if (pending.length) {
+				img.dataset.fallbackQueue = JSON.stringify(pending);
+				img.setAttribute("src", pending[0]);
+				return;
+			}
+		}
+
+		img.classList.add('d-none');
+		if (img.nextElementSibling) {
+			img.nextElementSibling.classList.remove('d-none');
+		}
+	}
+
+	function buildImageFallbackSources(src) {
+		var parts = src.match(/^(.*)\.([a-zA-Z0-9]+)(\?.*)?$/);
+		if (!parts) {
+			return [];
+		}
+
+		var base = parts[1];
+		var ext = parts[2].toLowerCase();
+		var query = parts[3] || "";
+		var alternatives = ['jpg', 'jpeg', 'png', 'webp'];
+
+		return alternatives
+			.filter(function(candidate) {
+				return candidate !== ext;
+			})
+			.map(function(candidate) {
+				return base + '.' + candidate + query;
+			});
+	}
+
+	document.addEventListener('DOMContentLoaded', function () {
+		var filterButtons = document.querySelectorAll('.result-filter-btn');
+		var reviewCards = document.querySelectorAll('.result-review-card');
+		var emptyMessage = document.getElementById('no-filter-message');
+
+		if (!filterButtons.length || !reviewCards.length) {
+			return;
+		}
+
+		function applyFilter(filterValue) {
+			var visibleCount = 0;
+
+			reviewCards.forEach(function (card) {
+				var status = card.getAttribute('data-review-status');
+				var shouldShow = filterValue === 'all' || status === filterValue;
+				card.style.display = shouldShow ? '' : 'none';
+				if (shouldShow) {
+					visibleCount += 1;
+				}
+			});
+
+			if (emptyMessage) {
+				emptyMessage.classList.toggle('d-none', visibleCount > 0);
+			}
+		}
+
+		filterButtons.forEach(function (button) {
+			button.addEventListener('click', function () {
+				filterButtons.forEach(function (btn) {
+					btn.classList.remove('active');
+				});
+				button.classList.add('active');
+				applyFilter(button.getAttribute('data-filter'));
+			});
+		});
+
+		applyFilter('all');
+	});
+</script>
 
 {% endblock %}

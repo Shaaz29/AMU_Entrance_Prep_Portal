@@ -17,6 +17,9 @@ urlpatterns = [
     # ================= MOCK TESTS =================
     path('mock-tests/', views.mock_tests, name='mock_tests'),
 
+    # Course-specific mock test list
+    path('mock-tests/<int:course_id>/', views.course_mock_tests, name='course_mock_tests'),
+
     # Start Test
     path('start-test/<int:test_id>/', views.start_test, name='start_test'),
 
