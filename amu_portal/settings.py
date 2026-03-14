@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # ================= BASE DIRECTORY =================
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,7 +14,7 @@ load_dotenv(BASE_DIR / '.env')
 # ================= SECURITY =================
 SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-secret-key-for-dev')
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
@@ -78,9 +79,21 @@ WSGI_APPLICATION = 'amu_portal.wsgi.application'
 
 
 # ================= DATABASE =================
+database_url = os.getenv('DATABASE_URL')
+
+if DEBUG:
+    default_db = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+else:
+    if not database_url:
+        raise ImproperlyConfigured(
+            "DATABASE_URL is required when DEBUG=False. "
+            "Set Render PostgreSQL connection string in environment variables."
+        )
+    default_db = database_url
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=default_db,
         conn_max_age=600,
     )
 }
@@ -103,7 +116,7 @@ USE_TZ = True
 
 
 # ================= STATIC FILES =================
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
