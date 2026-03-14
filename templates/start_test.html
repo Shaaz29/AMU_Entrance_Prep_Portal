@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
 
 <div class="container-fluid">
@@ -29,7 +31,7 @@ Time Remaining: <span id="timer">02:00:00</span>
 
 {% if q.image %}
 <div class="diagram-wrap mb-2">
-  <img src="{{ q.image.url }}" class="img-fluid" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
+  <img src="{% static q.image %}" class="img-fluid">
   <div class="diagram-fallback d-none">Diagram image is not available.</div>
 </div>
 {% endif %}

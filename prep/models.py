@@ -43,7 +43,7 @@ class Question(models.Model):
     correct_answer = models.CharField(max_length=100)
 
     explanation = models.TextField(blank=True)
-    image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+    image = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return f"Q{self.id} - {self.mocktest.course.name}"
