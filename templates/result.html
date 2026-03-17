@@ -100,7 +100,7 @@
 							</div>
 						</div>
 
-						<!-- ✅ UPDATED EXPLANATION WITH AI -->
+						<!-- Explanation -->
 						<div class="explanation-box mt-3">
 							<p class="mb-1 small text-uppercase">Explanation</p>
 
@@ -111,13 +111,6 @@
 									Explanation is not available for this question.
 								{% endif %}
 							</p>
-
-							<button class="btn btn-sm btn-outline-primary ai-btn"
-								data-question="{{ item.question.text }}">
-								Explain with AI
-							</button>
-
-							<div class="ai-response mt-2 text-muted"></div>
 						</div>
 
 					</div>
@@ -166,29 +159,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 
 	applyFilter('all');
-
-	// ✅ AI BUTTON LOGIC
-	document.querySelectorAll(".ai-btn").forEach(function(btn){
-
-		btn.addEventListener("click", function(){
-
-			const question = this.dataset.question;
-			const responseBox = this.nextElementSibling;
-
-			responseBox.innerHTML = "Generating explanation...";
-
-			fetch(`/ai-explanation/?question=${encodeURIComponent(question)}`)
-			.then(res => res.json())
-			.then(data => {
-				responseBox.innerHTML = data.answer;
-			})
-			.catch(() => {
-				responseBox.innerHTML = "Error generating explanation.";
-			});
-
-		});
-
-	});
 
 });
 </script>

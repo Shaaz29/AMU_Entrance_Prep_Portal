@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 
 from .models import MockTest, Question, Result, Course
+from .utils import import_questions
 
 
 # ================= HOME PAGE =================
@@ -232,3 +233,29 @@ def result(request, test_id):
         'total': questions.count(),
         'review_items': []
     })
+
+
+@login_required
+def upload_questions(request):
+    if not request.user.is_staff:
+        messages.error(request, 'Only admin/staff users can upload questions.')
+        return redirect('dashboard')
+
+    tests = MockTest.objects.select_related('course').all()
+
+    if request.method == 'POST':
+        mocktest_id = request.POST.get('mocktest_id')
+        upload_file = request.FILES.get('file')
+
+        if not mocktest_id or not upload_file:
+            messages.error(request, 'Please select a test and choose an Excel file.')
+            return render(request, 'upload.html', {'tests': tests})
+
+        try:
+            import_questions(upload_file, mocktest_id)
+            messages.success(request, 'Questions uploaded successfully.')
+            return redirect('upload_questions')
+        except Exception as exc:
+            messages.error(request, f'Upload failed: {exc}')
+
+    return render(request, 'upload.html', {'tests': tests})

@@ -9,8 +9,13 @@
     {% csrf_token %}
 
     <div class="mb-3">
-      <label>Select Test Name</label>
-      <input type="text" name="test_name" class="form-control" placeholder="e.g. AMU MCA PYQ 2023">
+      <label>Select Mock Test</label>
+      <select name="mocktest_id" class="form-control" required>
+        <option value="">-- Select --</option>
+        {% for test in tests %}
+          <option value="{{ test.id }}">{{ test.course.name }} - {{ test.year }} ({{ test.duration }} min)</option>
+        {% endfor %}
+      </select>
     </div>
 
     <div class="mb-3">
