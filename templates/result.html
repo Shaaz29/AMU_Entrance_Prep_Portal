@@ -111,6 +111,20 @@
 									Explanation is not available for this question.
 								{% endif %}
 							</p>
+
+							{% if item.question.concept %}
+								<button
+									class="btn btn-sm btn-outline-info"
+									type="button"
+									onclick="this.nextElementSibling.classList.toggle('d-none')"
+								>
+									Explain Concept
+								</button>
+
+								<div class="alert alert-info mt-2 d-none mb-0">
+									{{ item.question.concept|linebreaksbr }}
+								</div>
+							{% endif %}
 						</div>
 
 					</div>
