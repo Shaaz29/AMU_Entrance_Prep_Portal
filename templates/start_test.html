@@ -3,54 +3,71 @@
 
 {% block content %}
 
-<div class="container-fluid">
+<div class="exam-shell">
 
-<h2 class="mb-3">{{ test.course.name }} {{ test.year }}</h2>
-
-<div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap">
-
+<div class="card exam-header-card mb-4">
+<div class="card-body p-4 p-lg-5">
+<div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
 <div>
-Time Remaining: <span id="timer">02:00:00</span>
+<p class="exam-kicker mb-1">Live Mock Examination</p>
+<h2 class="mb-1">{{ test.course.name }} {{ test.year }}</h2>
+<p class="text-muted mb-0">Attempt all questions carefully. Your submission will be recorded instantly.</p>
 </div>
 
-<div style="min-width:260px">
-
-Answered: <span id="answeredCount">0</span> /
-<span id="totalQuestions">{{ questions|length }}</span>
-
-<div class="progress mt-1">
-
-<div id="progressBar"
-class="progress-bar bg-success"
-style="width:0%">
+<div class="exam-status-chip">{{ questions|length }} Questions</div>
 </div>
 
+<div class="exam-overview-grid mt-4">
+<div class="exam-timer-panel" id="timerPanel">
+<p class="exam-panel-label mb-2">Time Remaining</p>
+<div class="timer-display" id="timer">00:00:00</div>
+<p class="timer-helper mb-0" id="timerStatus">You still have enough time to review before submitting.</p>
 </div>
 
+<div class="exam-progress-panel">
+<div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+<div>
+<p class="exam-panel-label mb-1">Progress Tracker</p>
+<h5 class="mb-0"><span id="answeredCount">0</span> / <span id="totalQuestions">{{ questions|length }}</span> answered</h5>
 </div>
 
+<div class="progress-badge"><span id="answeredPercent">0</span>% complete</div>
+</div>
+
+<div class="progress exam-progress-bar mt-3">
+<div id="progressBar" class="progress-bar exam-progress-fill" style="width:0%"></div>
+</div>
+
+<p class="text-muted small mb-0 mt-2">Green palette buttons indicate answered questions.</p>
+</div>
+</div>
+</div>
 </div>
 
 
-<div class="row">
+<div class="row g-4">
 
 <!-- LEFT SIDE QUESTIONS -->
-<div class="col-md-9">
+
+<div class="col-lg-9">
 
 <form method="POST" action="/submit-test/{{ test.id }}/" id="testForm">
 {% csrf_token %}
 
 {% for q in questions %}
 
-<div class="card mb-4" id="question{{ forloop.counter }}">
+<div class="card mb-4 question-card" id="question{{ q.id }}">
 <div class="card-body">
 
-<p><b>Question {{ forloop.counter }}</b></p>
+<div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-2">
+<p class="question-index mb-0">Question {{ forloop.counter }}</p>
+<span class="question-type-pill">{{ q.get_type_display }}</span>
+</div>
 
-<p>{{ q.text }}</p>
+<p class="question-text mb-0">{{ q.text }}</p>
 
 {% if q.image %}
-<div class="diagram-wrap mb-2">
+<div class="diagram-wrap my-3">
 <img src="{% static q.image %}" class="img-fluid">
 <div class="diagram-fallback d-none">Diagram image is not available.</div>
 </div>
@@ -81,7 +98,7 @@ style="width:0%">
 
 {% elif q.type == 'NUM' %}
 
-<div class="mb-2">
+<div class="mb-2 mt-3">
 <label class="form-label fw-semibold">Your Answer:</label>
 
 <input
@@ -143,7 +160,9 @@ style="width:52px;height:48px;font-size:1.1rem;">
 
 {% endfor %}
 
-<button type="submit" class="btn btn-danger">Submit Test</button>
+<div class="d-flex justify-content-end">
+<button type="submit" class="btn btn-danger submit-test-btn">Submit Test</button>
+</div>
 
 </form>
 
@@ -152,18 +171,26 @@ style="width:52px;height:48px;font-size:1.1rem;">
 
 <!-- RIGHT SIDE QUESTION PALETTE -->
 
-<div class="col-md-3">
+<div class="col-lg-3">
 
-<h5>Question Palette</h5>
+<div class="card palette-panel">
+<div class="card-body">
+<div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+<div>
+<p class="exam-panel-label mb-1">Question Palette</p>
+<h5 class="mb-0">Quick Navigation</h5>
+</div>
+<div class="palette-legend">Tap to jump</div>
+</div>
 
-<div class="d-flex flex-wrap">
+<div class="palette-grid">
 
 {% for q in questions %}
 
 <button
-class="btn btn-secondary m-1 nav-btn palette-btn"
-id="btn{{ forloop.counter }}"
-onclick="goToQuestion({{ forloop.counter }})"
+class="btn btn-secondary nav-btn palette-btn"
+id="btn{{ q.id }}"
+onclick="goToQuestion({{ q.id }})"
 type="button">
 
 {{ forloop.counter }}
@@ -175,6 +202,9 @@ type="button">
 </div>
 
 </div>
+</div>
+
+</div>
 
 </div>
 
@@ -183,11 +213,15 @@ type="button">
 
 <script>
 
+var isAutoSubmitting = false;
+
 /* QUESTION NAVIGATION */
 
 function goToQuestion(num){
 
 let q = document.getElementById("question"+num);
+
+if(!q) return;
 
 q.scrollIntoView({
 behavior:"smooth"
@@ -226,6 +260,7 @@ document.getElementById("answeredCount").innerText = answered;
 let percent = (answered / total) * 100;
 
 document.getElementById("progressBar").style.width = percent + "%";
+document.getElementById("answeredPercent").innerText = Math.round(percent);
 
 }
 
@@ -340,26 +375,76 @@ updateProgress();
 
 /* TIMER */
 
+document.getElementById("testForm").addEventListener("submit", function(event){
+
+if(isAutoSubmitting || time <= 0){
+return;
+}
+
+var confirmed = window.confirm("Time is still remaining. Do you want to submit the test now?\n\nRemaining time: " + formatTime(time));
+
+if(!confirmed){
+event.preventDefault();
+}
+
+});
+
 var time = {{ test.duration }} * 60;
 
-setInterval(function(){
+function formatUnit(value){
+return String(value).padStart(2, "0");
+}
 
-var hours = Math.floor(time / 3600);
-var minutes = Math.floor((time % 3600) / 60);
-var seconds = time % 60;
+function formatTime(totalSeconds){
+var hours = Math.floor(totalSeconds / 3600);
+var minutes = Math.floor((totalSeconds % 3600) / 60);
+var seconds = totalSeconds % 60;
+return formatUnit(hours) + ":" + formatUnit(minutes) + ":" + formatUnit(seconds);
+}
 
-document.getElementById("timer").innerHTML =
-hours + ":" + minutes + ":" + seconds;
+function renderTimerState(){
+var timerPanel = document.getElementById("timerPanel");
+var timerStatus = document.getElementById("timerStatus");
+
+document.getElementById("timer").innerHTML = formatTime(time);
+
+timerPanel.classList.remove("timer-warning", "timer-danger");
+
+if(time <= 60){
+timerPanel.classList.add("timer-danger");
+timerStatus.innerText = "Final minute. Review quickly or submit now.";
+}
+else if(time <= 300){
+timerPanel.classList.add("timer-warning");
+timerStatus.innerText = "Less than 5 minutes left. Check unanswered questions.";
+}
+else{
+timerStatus.innerText = "You still have enough time to review before submitting.";
+}
+}
+
+renderTimerState();
+
+var timerInterval = setInterval(function(){
 
 time--;
 
 if(time <= 0){
 
+time = 0;
+renderTimerState();
+clearInterval(timerInterval);
+isAutoSubmitting = true;
 document.getElementById("testForm").submit();
+return;
 
 }
 
+renderTimerState();
+
 },1000);
+
+updateProgress();
 
 </script>
 
