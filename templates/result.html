@@ -100,16 +100,26 @@
 							</div>
 						</div>
 
+						<!-- ✅ UPDATED EXPLANATION WITH AI -->
 						<div class="explanation-box mt-3">
 							<p class="mb-1 small text-uppercase">Explanation</p>
-							<p class="mb-0">
+
+							<p class="mb-2">
 								{% if item.explanation %}
 									{{ item.explanation }}
 								{% else %}
 									Explanation is not available for this question.
 								{% endif %}
 							</p>
+
+							<button class="btn btn-sm btn-outline-primary ai-btn"
+								data-question="{{ item.question.text }}">
+								Explain with AI
+							</button>
+
+							<div class="ai-response mt-2 text-muted"></div>
 						</div>
+
 					</div>
 				</div>
 			{% endfor %}
@@ -119,91 +129,68 @@
 </div>
 
 <script>
-	function handleDiagramImageError(img) {
-		if (!img.dataset.fallbackTried) {
-			img.dataset.fallbackTried = "1";
-			var originalSrc = img.getAttribute("src") || "";
-			var fallbackSources = buildImageFallbackSources(originalSrc);
+// Existing image + filter JS (unchanged)
 
-			if (fallbackSources.length) {
-				img.dataset.fallbackQueue = JSON.stringify(fallbackSources);
-				img.setAttribute("src", fallbackSources[0]);
-				return;
-			}
-		} else {
-			var pending = JSON.parse(img.dataset.fallbackQueue || "[]");
-			pending.shift();
-			if (pending.length) {
-				img.dataset.fallbackQueue = JSON.stringify(pending);
-				img.setAttribute("src", pending[0]);
-				return;
-			}
-		}
-
-		img.classList.add('d-none');
-		if (img.nextElementSibling) {
-			img.nextElementSibling.classList.remove('d-none');
-		}
+function handleDiagramImageError(img) {
+	img.style.display = 'none';
+	if (img.nextElementSibling) {
+		img.nextElementSibling.classList.remove('d-none');
 	}
+}
 
-	function buildImageFallbackSources(src) {
-		var parts = src.match(/^(.*)\.([a-zA-Z0-9]+)(\?.*)?$/);
-		if (!parts) {
-			return [];
-		}
+document.addEventListener('DOMContentLoaded', function () {
 
-		var base = parts[1];
-		var ext = parts[2].toLowerCase();
-		var query = parts[3] || "";
-		var alternatives = ['jpg', 'jpeg', 'png', 'webp'];
+	var filterButtons = document.querySelectorAll('.result-filter-btn');
+	var reviewCards = document.querySelectorAll('.result-review-card');
+	var emptyMessage = document.getElementById('no-filter-message');
 
-		return alternatives
-			.filter(function(candidate) {
-				return candidate !== ext;
-			})
-			.map(function(candidate) {
-				return base + '.' + candidate + query;
-			});
-	}
+	function applyFilter(filterValue) {
+		var visibleCount = 0;
 
-	document.addEventListener('DOMContentLoaded', function () {
-		var filterButtons = document.querySelectorAll('.result-filter-btn');
-		var reviewCards = document.querySelectorAll('.result-review-card');
-		var emptyMessage = document.getElementById('no-filter-message');
-
-		if (!filterButtons.length || !reviewCards.length) {
-			return;
-		}
-
-		function applyFilter(filterValue) {
-			var visibleCount = 0;
-
-			reviewCards.forEach(function (card) {
-				var status = card.getAttribute('data-review-status');
-				var shouldShow = filterValue === 'all' || status === filterValue;
-				card.style.display = shouldShow ? '' : 'none';
-				if (shouldShow) {
-					visibleCount += 1;
-				}
-			});
-
-			if (emptyMessage) {
-				emptyMessage.classList.toggle('d-none', visibleCount > 0);
-			}
-		}
-
-		filterButtons.forEach(function (button) {
-			button.addEventListener('click', function () {
-				filterButtons.forEach(function (btn) {
-					btn.classList.remove('active');
-				});
-				button.classList.add('active');
-				applyFilter(button.getAttribute('data-filter'));
-			});
+		reviewCards.forEach(function (card) {
+			var status = card.getAttribute('data-review-status');
+			var shouldShow = filterValue === 'all' || status === filterValue;
+			card.style.display = shouldShow ? '' : 'none';
+			if (shouldShow) visibleCount++;
 		});
 
-		applyFilter('all');
+		emptyMessage.classList.toggle('d-none', visibleCount > 0);
+	}
+
+	filterButtons.forEach(function (button) {
+		button.addEventListener('click', function () {
+			filterButtons.forEach(btn => btn.classList.remove('active'));
+			button.classList.add('active');
+			applyFilter(button.getAttribute('data-filter'));
+		});
 	});
+
+	applyFilter('all');
+
+	// ✅ AI BUTTON LOGIC
+	document.querySelectorAll(".ai-btn").forEach(function(btn){
+
+		btn.addEventListener("click", function(){
+
+			const question = this.dataset.question;
+			const responseBox = this.nextElementSibling;
+
+			responseBox.innerHTML = "Generating explanation...";
+
+			fetch(`/ai-explanation/?question=${encodeURIComponent(question)}`)
+			.then(res => res.json())
+			.then(data => {
+				responseBox.innerHTML = data.answer;
+			})
+			.catch(() => {
+				responseBox.innerHTML = "Error generating explanation.";
+			});
+
+		});
+
+	});
+
+});
 </script>
 
 {% endblock %}

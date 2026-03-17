@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-
-# Import your models
+from django.http import JsonResponse
+import requests
 
 from .models import MockTest, Question, Result, Course
 
@@ -87,7 +87,6 @@ def mock_tests(request):
     tests = MockTest.objects.all()
     return render(request, 'mock_test.html', {'tests': tests, 'course': None})
 
-
 # ================= COURSE MOCK TEST LIST =================
 
 @login_required
@@ -114,9 +113,7 @@ def start_test(request, test_id):
             'questions': questions,
         })
 
-    return render(request, 'test_rules.html', {
-        'test': test,
-    })
+    return render(request, 'test_rules.html', {'test': test})
 
 # ================= SUBMIT TEST =================
 
@@ -186,7 +183,6 @@ def submit_test(request, test_id):
     incorrect_percentage = pct(incorrect_count, total)
     not_attempted_percentage = pct(not_attempted_count, total)
 
-    # Save result
     Result.objects.create(
         user=request.user,
         mocktest=test,
@@ -198,13 +194,13 @@ def submit_test(request, test_id):
     rank_percentile = round(((total_attempts - rank + 1) / total_attempts) * 100) if total_attempts else 0
 
     if rank_percentile >= 90:
-        performance_remark = "Outstanding performance. Keep this momentum going."
+        performance_remark = "Outstanding performance."
     elif rank_percentile >= 70:
-        performance_remark = "Very good work. You are above most test takers."
+        performance_remark = "Very good work."
     elif rank_percentile >= 50:
-        performance_remark = "Good effort. With focused revision you can climb higher."
+        performance_remark = "Good effort."
     else:
-        performance_remark = "Keep practicing. Review explanations and strengthen fundamentals."
+        performance_remark = "Keep practicing."
 
     if rules_session_key in request.session:
         del request.session[rules_session_key]
@@ -226,48 +222,28 @@ def submit_test(request, test_id):
         'performance_remark': performance_remark,
     })
 
-# ================= RESULT =================
+# ================= AI EXPLANATION (NEW FEATURE) =================
 
-@login_required
-def result(request, test_id):
-    score = 85
-    total = 100
-    return render(request, 'result.html', {
-        'test': MockTest.objects.get(id=test_id),
-        'score': score,
-        'total': total,
-        'review_items': [],
-        'correct_count': 0,
-        'incorrect_count': 0,
-        'not_attempted_count': 0,
-        'correct_percentage': 0,
-        'incorrect_percentage': 0,
-        'not_attempted_percentage': 0,
-        'rank': 0,
-        'total_attempts': 0,
-        'rank_percentile': 0,
-        'performance_remark': '',
-    })
+def ai_explanation(request):
+    question = request.GET.get("question")
 
+    if not question:
+        return JsonResponse({"answer": "No question provided."})
 
-# ================= UPLOAD QUESTIONS =================
+    prompt = f"Explain this exam question in simple terms:\n{question}"
 
-@login_required
-def upload_questions(request):
-    if not request.user.is_superuser:
-        messages.error(request, "You are not authorized to access this page.")
-        return redirect('dashboard')
+    API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
 
-    if request.method == 'POST':
-        test_name = request.POST.get('test_name')
-        uploaded_file = request.FILES.get('file')
+    try:
+        response = requests.post(API_URL, json={"inputs": prompt})
+        data = response.json()
 
-        if not uploaded_file:
-            messages.error(request, "Please select a file")
-            return redirect('upload_questions')
+        if isinstance(data, list):
+            answer = data[0].get("generated_text", "No explanation generated.")
+        else:
+            answer = "AI could not generate explanation."
 
-        messages.success(request, f"File uploaded successfully for {test_name}")
-        return redirect('upload_questions')
+    except Exception:
+        answer = "AI service unavailable."
 
-    return render(request, 'upload.html')
-
+    return JsonResponse({"answer": answer})

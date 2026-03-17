@@ -42,7 +42,13 @@ class Question(models.Model):
 
     correct_answer = models.CharField(max_length=100)
 
+    # Explanation for answer
     explanation = models.TextField(blank=True)
+
+    # NEW FIELD for deeper concept explanation
+    concept = models.TextField(blank=True, null=True)
+
+    # Image path (diagram)
     image = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):

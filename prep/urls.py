@@ -31,4 +31,7 @@ urlpatterns = [
 
     # ================= ADMIN QUESTION UPLOAD =================
     path('upload-questions/', views.upload_questions, name='upload_questions'),
+
+    # ================= AI EXPLANATION (NEW) =================
+    path('ai-explanation/', views.ai_explanation, name='ai_explanation'),
 ]
