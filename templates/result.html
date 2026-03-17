@@ -162,29 +162,34 @@
 
 						<!-- Explanation -->
 						<div class="explanation-box mt-3">
-							<p class="mb-1 small text-uppercase">Explanation</p>
+							<div class="d-flex align-items-center gap-2 flex-wrap">
+								<button
+									class="btn btn-sm btn-outline-secondary"
+									type="button"
+									onclick="toggleStaticExplain(this)"
+								>
+									Show Explanation
+								</button>
 
-							<p class="mb-2">
+								<button
+									class="btn btn-sm btn-outline-info"
+									type="button"
+									data-question-id="{{ item.question.id }}"
+									onclick="toggleAiExplain(this)"
+								>
+									Explain with AI
+								</button>
+							</div>
+
+							<div class="static-explain-content d-none mt-2 alert alert-secondary mb-0">
 								{% if item.explanation %}
 									{{ item.explanation }}
 								{% else %}
 									Explanation is not available for this question.
 								{% endif %}
-							</p>
+							</div>
 
-							{% if item.question.concept %}
-								<button
-									class="btn btn-sm btn-outline-info"
-									type="button"
-									onclick="this.nextElementSibling.classList.toggle('d-none')"
-								>
-									Explain Concept
-								</button>
-
-								<div class="alert alert-info mt-2 d-none mb-0">
-									{{ item.question.concept|linebreaksbr }}
-								</div>
-							{% endif %}
+							<div class="alert alert-info mt-2 d-none mb-0 ai-explain-content"></div>
 						</div>
 
 					</div>
@@ -196,12 +201,60 @@
 </div>
 
 <script>
-// Existing image + filter JS (unchanged)
+function toggleStaticExplain(button) {
+	var panel = button.closest('.explanation-box').querySelector('.static-explain-content');
+	if (!panel) return;
+	var isHidden = panel.classList.contains('d-none');
+	panel.classList.toggle('d-none', !isHidden);
+	button.textContent = isHidden ? 'Hide Explanation' : 'Show Explanation';
+}
 
 function handleDiagramImageError(img) {
 	img.style.display = 'none';
 	if (img.nextElementSibling) {
 		img.nextElementSibling.classList.remove('d-none');
+	}
+}
+
+async function toggleAiExplain(button) {
+	var panel = button.closest('.explanation-box').querySelector('.ai-explain-content');
+	if (!panel) return;
+	var mode = 'medium';
+	var cacheAttr = 'data-ai-text-' + mode;
+
+	if (!panel.classList.contains('d-none')) {
+		panel.classList.add('d-none');
+		return;
+	}
+
+	var cachedText = (button.getAttribute(cacheAttr) || '').trim();
+	if (cachedText) {
+		panel.textContent = cachedText;
+		panel.classList.remove('d-none');
+		return;
+	}
+
+	panel.textContent = 'Generating ' + mode + ' explanation...';
+	panel.classList.remove('d-none');
+
+	var questionId = button.getAttribute('data-question-id');
+	if (!questionId) {
+		panel.textContent = 'Explanation is unavailable for this question.';
+		return;
+	}
+
+	try {
+		var response = await fetch('/api/explain-question/' + questionId + '/?mode=' + encodeURIComponent(mode));
+		if (!response.ok) {
+			throw new Error('Failed to fetch explanation');
+		}
+
+		var data = await response.json();
+		var renderedText = (data && data.explanation) ? data.explanation : 'Explanation is unavailable for this question.';
+		button.setAttribute(cacheAttr, renderedText);
+		panel.textContent = renderedText;
+	} catch (error) {
+		panel.textContent = 'Could not generate explanation right now. Please try again.';
 	}
 }
 

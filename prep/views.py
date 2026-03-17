@@ -4,9 +4,123 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.conf import settings
+import requests as http_requests
 
 from .models import MockTest, Question, Result, Course
 from .utils import import_questions
+
+
+def _call_gemini(prompt):
+    api_key = getattr(settings, 'GEMINI_API_KEY', '').strip()
+    model_name = getattr(settings, 'GEMINI_MODEL', 'gemini-2.5-flash').strip() or 'gemini-2.5-flash'
+    if not api_key or api_key == 'your-gemini-api-key-here':
+        return None
+    url = (
+        'https://generativelanguage.googleapis.com/v1beta/models/'
+        + model_name + ':generateContent?key=' + api_key
+    )
+    body = {
+        'contents': [{'parts': [{'text': prompt}]}],
+        'generationConfig': {'temperature': 0.4, 'maxOutputTokens': 512},
+    }
+    try:
+        resp = http_requests.post(url, json=body, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        return data['candidates'][0]['content']['parts'][0]['text'].strip()
+    except Exception:
+        return None
+
+
+def _build_gemini_prompt(question, mode):
+    q_text = question.text.strip()
+    stored_note = (question.concept or question.explanation or '').strip()
+
+    if question.type == 'MCQ':
+        options_block = (
+            f"A) {question.option_a}\n"
+            f"B) {question.option_b}\n"
+            f"C) {question.option_c}\n"
+            f"D) {question.option_d}"
+        )
+        correct = question.correct_answer.strip().upper()
+        option_map = {'A': question.option_a, 'B': question.option_b,
+                      'C': question.option_c, 'D': question.option_d}
+        correct_text = option_map.get(correct, '')
+
+        detail_instruction = {
+            'short': 'Give a concise 2-3 sentence explanation.',
+            'medium': 'Give a clear explanation in 4-6 sentences covering why the correct answer is right and why the other options are wrong.',
+            'detailed': 'Give a thorough step-by-step explanation covering the concept behind the question, why the correct option is right, and why each of the other options is wrong.',
+        }.get(mode, 'Give a clear explanation in 4-6 sentences.')
+
+        prompt = (
+            f"You are an expert teacher helping a student understand an exam question.\n\n"
+            f"Question: {q_text}\n\n"
+            f"Options:\n{options_block}\n\n"
+            f"Correct Answer: {correct}) {correct_text}\n\n"
+        )
+        if stored_note:
+            prompt += f"Additional note from teacher: {stored_note}\n\n"
+        prompt += detail_instruction + "\nDo not use markdown formatting, just plain text."
+    else:
+        detail_instruction = {
+            'short': 'Give a concise 2-3 sentence explanation.',
+            'medium': 'Explain step by step how to arrive at the answer in 4-6 sentences.',
+            'detailed': 'Give a thorough step-by-step solution covering the formula, substitution, and verification.',
+        }.get(mode, 'Explain step by step.')
+
+        prompt = (
+            f"You are an expert teacher helping a student understand an exam question.\n\n"
+            f"Question: {q_text}\n\n"
+            f"Correct Answer: {question.correct_answer}\n\n"
+        )
+        if stored_note:
+            prompt += f"Additional note from teacher: {stored_note}\n\n"
+        prompt += detail_instruction + "\nDo not use markdown formatting, just plain text."
+
+    return prompt
+
+
+def _build_fallback_explanation(question, mode):
+    """Template-based fallback when Gemini API key is not set."""
+    if question.type == 'MCQ':
+        option_map = {
+            'A': question.option_a, 'B': question.option_b,
+            'C': question.option_c, 'D': question.option_d,
+        }
+        correct_text = option_map.get(question.correct_answer, '').strip()
+        answer_line = f"Correct option is {question.correct_answer}"
+        if correct_text:
+            answer_line += f": {correct_text}."
+        else:
+            answer_line += "."
+        points = [answer_line]
+    else:
+        points = [f"Correct answer is {question.correct_answer}."]
+
+    if question.concept:
+        points.append(f"Concept: {question.concept}")
+    elif question.explanation:
+        points.append(f"Explanation: {question.explanation}")
+    else:
+        points.append("No detailed explanation is available for this question. Add an explanation in the admin panel.")
+
+    return "\n\n".join(points)
+
+
+def _build_live_explanation(question, mode='medium'):
+    mode = (mode or 'medium').lower().strip()
+    if mode not in {'short', 'medium', 'detailed'}:
+        mode = 'medium'
+
+    prompt = _build_gemini_prompt(question, mode)
+    ai_result = _call_gemini(prompt)
+    if ai_result:
+        return ai_result
+
+    return _build_fallback_explanation(question, mode)
 
 
 # ================= HOME PAGE =================
@@ -259,3 +373,16 @@ def upload_questions(request):
             messages.error(request, f'Upload failed: {exc}')
 
     return render(request, 'upload.html', {'tests': tests})
+
+
+@login_required
+def explain_question(request, question_id):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+    question = Question.objects.filter(id=question_id).first()
+    if not question:
+        return JsonResponse({'error': 'Question not found.'}, status=404)
+
+    mode = request.GET.get('mode', 'medium')
+    return JsonResponse({'explanation': _build_live_explanation(question, mode=mode), 'source': 'live-free', 'mode': mode})
