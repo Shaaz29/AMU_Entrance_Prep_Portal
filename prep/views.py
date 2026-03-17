@@ -4,18 +4,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-import requests
 
 from .models import MockTest, Question, Result, Course
 
-# ================= HOME PAGE =================
 
+# ================= HOME PAGE =================
 def home(request):
     courses = Course.objects.all()
     return render(request, 'home.html', {'courses': courses})
 
-# ================= REGISTER =================
 
+# ================= REGISTER =================
 def register(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -40,15 +39,13 @@ def register(request):
             password=password,
         )
 
-        user.save()
-
         messages.success(request, "Account created successfully. Please login.")
         return redirect('login')
 
     return render(request, 'register.html')
 
-# ================= LOGIN =================
 
+# ================= LOGIN =================
 def user_login(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -59,7 +56,7 @@ def user_login(request):
 
         user = authenticate(request, username=username, password=password)
 
-        if user is not None:
+        if user:
             login(request, user)
             return redirect('dashboard')
 
@@ -68,35 +65,35 @@ def user_login(request):
 
     return render(request, 'login.html')
 
-# ================= LOGOUT =================
 
+# ================= LOGOUT =================
 def user_logout(request):
     logout(request)
     return redirect('home')
 
-# ================= DASHBOARD =================
 
+# ================= DASHBOARD =================
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
 
-# ================= MOCK TEST LIST =================
 
+# ================= MOCK TEST LIST =================
 @login_required
 def mock_tests(request):
     tests = MockTest.objects.all()
     return render(request, 'mock_test.html', {'tests': tests, 'course': None})
 
-# ================= COURSE MOCK TEST LIST =================
 
+# ================= COURSE MOCK TEST LIST =================
 @login_required
 def course_mock_tests(request, course_id):
     course = Course.objects.get(id=course_id)
     tests = MockTest.objects.filter(course=course)
     return render(request, 'mock_test.html', {'tests': tests, 'course': course})
 
-# ================= START TEST =================
 
+# ================= START TEST =================
 @login_required
 def start_test(request, test_id):
     test = MockTest.objects.get(id=test_id)
@@ -115,8 +112,8 @@ def start_test(request, test_id):
 
     return render(request, 'test_rules.html', {'test': test})
 
-# ================= SUBMIT TEST =================
 
+# ================= SUBMIT TEST =================
 @login_required
 def submit_test(request, test_id):
 
@@ -222,28 +219,16 @@ def submit_test(request, test_id):
         'performance_remark': performance_remark,
     })
 
-# ================= AI EXPLANATION (NEW FEATURE) =================
 
-def ai_explanation(request):
-    question = request.GET.get("question")
+# ================= RESULT VIEW (REQUIRED FOR URL) =================
+@login_required
+def result(request, test_id):
+    test = MockTest.objects.get(id=test_id)
+    questions = Question.objects.filter(mocktest=test)
 
-    if not question:
-        return JsonResponse({"answer": "No question provided."})
-
-    prompt = f"Explain this exam question in simple terms:\n{question}"
-
-    API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-
-    try:
-        response = requests.post(API_URL, json={"inputs": prompt})
-        data = response.json()
-
-        if isinstance(data, list):
-            answer = data[0].get("generated_text", "No explanation generated.")
-        else:
-            answer = "AI could not generate explanation."
-
-    except Exception:
-        answer = "AI service unavailable."
-
-    return JsonResponse({"answer": answer})
+    return render(request, 'result.html', {
+        'test': test,
+        'score': 0,
+        'total': questions.count(),
+        'review_items': []
+    })
