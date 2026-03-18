@@ -6,16 +6,21 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.conf import settings
 import requests as http_requests
+from requests import exceptions as req_exceptions
+import logging
 
 from .models import MockTest, Question, Result, Course
 from .utils import import_questions
+
+
+logger = logging.getLogger(__name__)
 
 
 def _call_gemini(prompt):
     api_key = getattr(settings, 'GEMINI_API_KEY', '').strip()
     model_name = getattr(settings, 'GEMINI_MODEL', 'gemini-2.5-flash').strip() or 'gemini-2.5-flash'
     if not api_key or api_key == 'your-gemini-api-key-here':
-        return None
+        return None, 'missing_api_key'
     url = (
         'https://generativelanguage.googleapis.com/v1beta/models/'
         + model_name + ':generateContent?key=' + api_key
@@ -28,9 +33,23 @@ def _call_gemini(prompt):
         resp = http_requests.post(url, json=body, timeout=15)
         resp.raise_for_status()
         data = resp.json()
-        return data['candidates'][0]['content']['parts'][0]['text'].strip()
+        text = data['candidates'][0]['content']['parts'][0]['text'].strip()
+        if not text:
+            return None, 'empty_response'
+        return text, None
+    except req_exceptions.HTTPError as exc:
+        status_code = getattr(getattr(exc, 'response', None), 'status_code', 'unknown')
+        logger.warning('Gemini HTTPError status=%s body=%s', status_code, getattr(getattr(exc, 'response', None), 'text', '')[:400])
+        return None, f'http_{status_code}'
+    except req_exceptions.Timeout:
+        logger.warning('Gemini API request timed out.')
+        return None, 'timeout'
+    except req_exceptions.RequestException as exc:
+        logger.warning('Gemini API request exception: %s', str(exc))
+        return None, 'request_exception'
     except Exception:
-        return None
+        logger.exception('Unexpected Gemini API failure.')
+        return None, 'unexpected_error'
 
 
 def _build_gemini_prompt(question, mode):
@@ -116,11 +135,19 @@ def _build_live_explanation(question, mode='medium'):
         mode = 'medium'
 
     prompt = _build_gemini_prompt(question, mode)
-    ai_result = _call_gemini(prompt)
+    ai_result, reason = _call_gemini(prompt)
     if ai_result:
-        return ai_result
+        return {
+            'text': ai_result,
+            'source': 'gemini',
+            'fallback_reason': None,
+        }
 
-    return _build_fallback_explanation(question, mode)
+    return {
+        'text': _build_fallback_explanation(question, mode),
+        'source': 'fallback',
+        'fallback_reason': reason or 'unknown',
+    }
 
 
 # ================= HOME PAGE =================
@@ -385,4 +412,10 @@ def explain_question(request, question_id):
         return JsonResponse({'error': 'Question not found.'}, status=404)
 
     mode = request.GET.get('mode', 'medium')
-    return JsonResponse({'explanation': _build_live_explanation(question, mode=mode), 'source': 'live-free', 'mode': mode})
+    result = _build_live_explanation(question, mode=mode)
+    return JsonResponse({
+        'explanation': result['text'],
+        'source': result['source'],
+        'fallback_reason': result['fallback_reason'],
+        'mode': mode,
+    })

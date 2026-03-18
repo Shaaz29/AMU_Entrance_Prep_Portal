@@ -17,7 +17,12 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-secret-key-for-dev')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # ================= GEMINI AI =================
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+GEMINI_API_KEY = (
+    os.getenv('GEMINI_API_KEY')
+    or os.getenv('GOOGLE_API_KEY')
+    or os.getenv('GEMINI_KEY')
+    or ''
+)
 GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')

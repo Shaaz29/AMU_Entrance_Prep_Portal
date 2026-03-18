@@ -140,7 +140,7 @@
 
 						{% if item.question.image %}
 							<div class="diagram-wrap mb-3">
-								<img src="{{ item.question.image.url }}" class="img-fluid rounded" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
+								<img src="{{ item.question.image.url }}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
 								<div class="diagram-fallback d-none">Diagram image is not available.</div>
 							</div>
 						{% endif %}
@@ -251,6 +251,10 @@ async function toggleAiExplain(button) {
 
 		var data = await response.json();
 		var renderedText = (data && data.explanation) ? data.explanation : 'Explanation is unavailable for this question.';
+		if (data && data.source === 'fallback') {
+			var reason = (data.fallback_reason || 'unknown').replaceAll('_', ' ');
+			renderedText += '\n\nAI service is unavailable on the server right now. Showing saved explanation. (' + reason + ')';
+		}
 		button.setAttribute(cacheAttr, renderedText);
 		panel.textContent = renderedText;
 	} catch (error) {

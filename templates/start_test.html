@@ -5,6 +5,11 @@
 
 <div class="exam-shell">
 
+<div class="sticky-timer-bar" id="stickyTimerPanel" aria-live="polite">
+<span class="sticky-timer-label">Time Left</span>
+<span class="sticky-timer-value" id="stickyTimer">00:00:00</span>
+</div>
+
 <div class="card exam-header-card mb-4">
 <div class="card-body p-4 p-lg-5">
 <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
@@ -17,12 +22,7 @@
 <div class="exam-status-chip">{{ questions|length }} Questions</div>
 </div>
 
-<div class="exam-overview-grid mt-4">
-<div class="exam-timer-panel" id="timerPanel">
-<p class="exam-panel-label mb-2">Time Remaining</p>
-<div class="timer-display" id="timer">00:00:00</div>
-<p class="timer-helper mb-0" id="timerStatus">You still have enough time to review before submitting.</p>
-</div>
+<div class="exam-overview-grid no-timer mt-4">
 
 <div class="exam-progress-panel">
 <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
@@ -68,7 +68,7 @@
 
 {% if q.image %}
 <div class="diagram-wrap my-3">
-<img src="{% static q.image %}" class="img-fluid">
+<img src="{% static q.image %}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
 <div class="diagram-fallback d-none">Diagram image is not available.</div>
 </div>
 {% endif %}
@@ -403,23 +403,18 @@ return formatUnit(hours) + ":" + formatUnit(minutes) + ":" + formatUnit(seconds)
 }
 
 function renderTimerState(){
-var timerPanel = document.getElementById("timerPanel");
-var timerStatus = document.getElementById("timerStatus");
+var stickyTimerPanel = document.getElementById("stickyTimerPanel");
+var formattedTime = formatTime(time);
 
-document.getElementById("timer").innerHTML = formatTime(time);
+document.getElementById("stickyTimer").innerHTML = formattedTime;
 
-timerPanel.classList.remove("timer-warning", "timer-danger");
+stickyTimerPanel.classList.remove("timer-warning", "timer-danger");
 
 if(time <= 60){
-timerPanel.classList.add("timer-danger");
-timerStatus.innerText = "Final minute. Review quickly or submit now.";
+stickyTimerPanel.classList.add("timer-danger");
 }
 else if(time <= 300){
-timerPanel.classList.add("timer-warning");
-timerStatus.innerText = "Less than 5 minutes left. Check unanswered questions.";
-}
-else{
-timerStatus.innerText = "You still have enough time to review before submitting.";
+stickyTimerPanel.classList.add("timer-warning");
 }
 }
 
