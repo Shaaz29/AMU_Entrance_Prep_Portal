@@ -70,7 +70,8 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Profile Photo</label>
                             {{ form.photo }}
-                            <p class="text-muted small mb-0 mt-2">Recommended square image (at least 300x300).</p>
+                            <div id="photo-error" class="invalid-feedback d-block" style="display: none;"></div>
+                            <p class="text-muted small mb-0 mt-2">Max 5MB • Accepted: JPG, PNG, GIF, WebP</p>
                         </div>
 
                         {{ form.photo_position_x }}
@@ -79,7 +80,7 @@
                         <div class="profile-photo-adjuster mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <p class="mb-0 fw-semibold">Adjust Photo In Frame</p>
-                                <small class="text-muted">Move until your face is centered</small>
+                                <button type="button" class="btn btn-sm btn-link p-0" id="reset-photo-pos">Reset</button>
                             </div>
 
                             <div class="profile-photo-preview-frame mb-3">
@@ -128,7 +129,10 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary profile-save-btn">Save Profile</button>
+                        <button type="submit" class="btn btn-primary profile-save-btn" id="profile-save-btn">
+                            <span id="save-btn-text">Save Profile</span>
+                            <span id="save-btn-spinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -188,6 +192,12 @@ document.addEventListener('DOMContentLoaded', function () {
     var previewEmpty = document.getElementById('profile-photo-preview-empty');
     var fileInput = document.getElementById('id_photo');
     var heroAvatar = document.querySelector('.js-profile-avatar');
+    var photoErrorDiv = document.getElementById('photo-error');
+    var resetButton = document.getElementById('reset-photo-pos');
+    var saveBtn = document.getElementById('profile-save-btn');
+    var saveBtnText = document.getElementById('save-btn-text');
+    var saveBtnSpinner = document.getElementById('save-btn-spinner');
+    var profileForm = document.querySelector('form[enctype="multipart/form-data"]');
 
     if (!xSlider || !ySlider || !xInput || !yInput) {
         return;
@@ -223,6 +233,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function validatePhotoFile(file) {
+        if (!file) {
+            return { valid: true };
+        }
+
+        var MAX_SIZE = 5 * 1024 * 1024; // 5MB
+        var ALLOWED_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        var fileName = file.name.toLowerCase();
+        var fileExtension = fileName.split('.').pop();
+
+        if (file.size > MAX_SIZE) {
+            return {
+                valid: false,
+                error: 'File size exceeds 5MB limit. Please choose a smaller image.'
+            };
+        }
+
+        if (ALLOWED_TYPES.indexOf(fileExtension) === -1) {
+            return {
+                valid: false,
+                error: 'Invalid file type. Allowed formats: JPG, PNG, GIF, WEBP.'
+            };
+        }
+
+        return { valid: true };
+    }
+
     xSlider.value = clampToPercent(xInput.value || xSlider.value, 50);
     ySlider.value = clampToPercent(yInput.value || ySlider.value, 35);
     applyPosition();
@@ -230,18 +267,51 @@ document.addEventListener('DOMContentLoaded', function () {
     xSlider.addEventListener('input', applyPosition);
     ySlider.addEventListener('input', applyPosition);
 
-    if (fileInput && previewImage) {
+    // File input validation
+    if (fileInput) {
         fileInput.addEventListener('change', function (event) {
             var selectedFile = event.target.files && event.target.files[0];
             if (!selectedFile) {
+                photoErrorDiv.style.display = 'none';
                 return;
             }
+
+            var validation = validatePhotoFile(selectedFile);
+            if (!validation.valid) {
+                photoErrorDiv.textContent = validation.error;
+                photoErrorDiv.style.display = 'block';
+                fileInput.value = '';
+                return;
+            }
+
+            photoErrorDiv.style.display = 'none';
             var localUrl = URL.createObjectURL(selectedFile);
             previewImage.src = localUrl;
             previewImage.classList.remove('d-none');
             if (previewEmpty) {
                 previewEmpty.classList.add('d-none');
             }
+        });
+    }
+
+    // Reset photo position button
+    if (resetButton) {
+        resetButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            xSlider.value = 50;
+            ySlider.value = 35;
+            applyPosition();
+            showToast('Photo position reset to default', 'info');
+        });
+    }
+
+    // Form submission handler
+    if (profileForm) {
+        profileForm.addEventListener('submit', function (e) {
+            // Disable button and show spinner
+            saveBtn.disabled = true;
+            saveBtnText.style.display = 'none';
+            saveBtnSpinner.style.display = 'inline-block';
         });
     }
 });

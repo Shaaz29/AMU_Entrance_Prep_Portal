@@ -7,9 +7,12 @@
     <div class="col-lg-3">
         <div class="card course-list-card h-100">
             <div class="card-body">
-                <p class="course-list-kicker mb-2">Browse</p>
-                <h5 class="card-title mb-3">Available Courses</h5>
-                <div class="course-list">
+                <button class="courses-toggle-btn collapsed d-lg-none mb-3" id="courses-toggle">
+                    Browse Courses
+                </button>
+                <p class="course-list-kicker mb-2 d-none d-lg-block">Browse</p>
+                <h5 class="card-title mb-3 d-none d-lg-block">Available Courses</h5>
+                <div class="course-list" id="course-list">
                     {% for course_item in all_courses %}
                     <a
                         href="?course_id={{ course_item.id }}"
@@ -123,5 +126,20 @@ No mock tests available yet.
 
 </div>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var toggle = document.getElementById('courses-toggle');
+    var courseList = document.getElementById('course-list');
+
+    if (toggle && courseList) {
+        toggle.addEventListener('click', function () {
+            courseList.classList.toggle('show');
+            toggle.classList.toggle('collapsed');
+            toggle.classList.toggle('expanded');
+        });
+    }
+});
+</script>
 
 {% endblock %}

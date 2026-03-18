@@ -22,66 +22,83 @@
 
 <!-- 🔥 RESPONSIVE NAVBAR -->
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
-  <div class="container">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary shadow-sm sticky-top navbar-custom">
+  <div class="container-fluid">
 
-<!-- Logo -->
-<a class="navbar-brand fw-bold" href="/">
-    AMU Prep
-</a>
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold" href="/">
+        <span class="d-none d-sm-inline">AMU Prep Portal</span>
+        <span class="d-sm-none">AMU</span>
+    </a>
 
-<!-- Mobile Toggle Button -->
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
-  <span class="navbar-toggler-icon"></span>
-</button>
+    <!-- Mobile Toggle Button -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-<!-- Navbar Items -->
-<div class="collapse navbar-collapse" id="navbarMenu">
+    <!-- Navbar Items -->
+    <div class="collapse navbar-collapse" id="navbarMenu">
 
-  {% if user.is_authenticated %}
-  <form class="d-flex me-lg-3 mb-2 mb-lg-0" role="search" method="GET" action="/mock-tests/">
-    <select class="form-select form-select-sm" name="course_id" aria-label="Select course">
-      <option value="">All Courses</option>
-      {% for nav_course in navbar_courses %}
-      <option value="{{ nav_course.id }}" {% if request.GET.course_id == nav_course.id|stringformat:'s' %}selected{% endif %}>{{ nav_course.name }}</option>
-      {% endfor %}
-    </select>
-    <button class="btn btn-sm btn-light ms-2" type="submit">Go</button>
-  </form>
-  {% endif %}
+      {% if user.is_authenticated %}
+      <form class="navbar-search-form d-flex me-lg-auto mb-2 mb-lg-0" role="search" method="GET" action="/mock-tests/">
+        <select class="form-select form-select-sm navbar-course-select" name="course_id" aria-label="Select course">
+          <option value="">All Courses</option>
+          {% for nav_course in navbar_courses %}
+          <option value="{{ nav_course.id }}" {% if request.GET.course_id == nav_course.id|stringformat:'s' %}selected{% endif %}>{{ nav_course.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-sm btn-light ms-2 navbar-go-btn" type="submit">Go</button>
+      </form>
+      {% endif %}
 
-  <ul class="navbar-nav ms-auto align-items-lg-center">
+      <ul class="navbar-nav ms-auto align-items-lg-center navbar-menu-items">
 
-    <li class="nav-item">
-      <a class="nav-link" href="/">Home</a>
-    </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            <i class="icon-home"></i>
+            <span class="nav-text">Home</span>
+          </a>
+        </li>
 
-    <li class="nav-item">
-      <a class="nav-link" href="/mock-tests/">Mock Tests</a>
-    </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/mock-tests/">
+            <i class="icon-tests"></i>
+            <span class="nav-text">Mock Tests</span>
+          </a>
+        </li>
 
-    <li class="nav-item">
-      <a class="nav-link" href="/dashboard/">Dashboard</a>
-    </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard/">
+            <i class="icon-dashboard"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
 
-    {% if user.is_authenticated %}
-    <li class="nav-item">
-      <a class="nav-link" href="/profile/">Profile</a>
-    </li>
-    {% endif %}
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/">
+            <i class="icon-profile"></i>
+            <span class="nav-text">Profile</span>
+          </a>
+        </li>
+        {% endif %}
 
-    {% if user.is_authenticated %}
-    <li class="nav-item ms-lg-3">
-      <a class="btn btn-outline-light px-3" href="/logout/">Logout</a>
-    </li>
-    {% else %}
-    <li class="nav-item ms-lg-3">
-      <a class="btn btn-primary px-3" href="/login/">Login</a>
-    </li>
-    {% endif %}
+        {% if user.is_authenticated %}
+        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+          <a class="btn btn-outline-light btn-sm navbar-btn-logout" href="/logout/">
+            <span class="nav-text">Logout</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+          <a class="btn btn-primary btn-sm navbar-btn-login" href="/login/">
+            <span class="nav-text">Login</span>
+          </a>
+        </li>
+        {% endif %}
 
-  </ul>
-</div>
+      </ul>
+    </div>
 
   </div>
 </nav>
@@ -89,8 +106,21 @@
 <!-- PAGE CONTENT -->
 
 <div class="container mt-4">
+    <!-- Django Messages Display -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    
     {% block content %}{% endblock %}
 </div>
+
+<!-- TOAST NOTIFICATIONS CONTAINER -->
+<div id="toast-container" class="toast-container"></div>
 
 <!-- FOOTER -->
 
@@ -110,6 +140,44 @@
 AOS.init({
     duration: 1000,
     once: true
+});
+
+// Global toast notification function
+window.showToast = function(message, type) {
+    type = type || 'info'; // 'success', 'error', 'warning', 'info'
+    var container = document.getElementById('toast-container');
+    
+    var toastEl = document.createElement('div');
+    toastEl.className = 'app-toast app-toast-' + type;
+    toastEl.innerHTML = message;
+    
+    container.appendChild(toastEl);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(function() {
+        toastEl.classList.add('fade-out');
+        setTimeout(function() {
+            container.removeChild(toastEl);
+        }, 300);
+    }, 4000);
+};
+
+// Convert Django messages to toasts
+document.addEventListener('DOMContentLoaded', function() {
+    var messages = document.querySelectorAll('.alert');
+    messages.forEach(function(msg) {
+        var text = msg.textContent.trim();
+        if (text) {
+            var type = 'info';
+            if (msg.classList.contains('alert-success')) type = 'success';
+            else if (msg.classList.contains('alert-danger')) type = 'error';
+            else if (msg.classList.contains('alert-warning')) type = 'warning';
+            else if (msg.classList.contains('alert-info')) type = 'info';
+            
+            showToast(text, type);
+            msg.style.display = 'none';
+        }
+    });
 });
 </script>
 

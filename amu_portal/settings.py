@@ -148,5 +148,16 @@ LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'home'
 
 
+# ================= DJANGO MESSAGES =================
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'info',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+}
+
+
 # ================= DEFAULT PRIMARY KEY =================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
