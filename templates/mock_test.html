@@ -2,6 +2,84 @@
 
 {% block content %}
 
+{% if user.is_authenticated %}
+<div class="row g-4 mb-4">
+    <div class="col-lg-3">
+        <div class="card course-list-card h-100">
+            <div class="card-body">
+                <p class="course-list-kicker mb-2">Browse</p>
+                <h5 class="card-title mb-3">Available Courses</h5>
+                <div class="course-list">
+                    {% for course_item in all_courses %}
+                    <a
+                        href="?course_id={{ course_item.id }}"
+                        class="course-list-item {% if selected_course.id == course_item.id %}active{% endif %}"
+                    >
+                        <span>{{ course_item.name }}</span>
+                        <small class="course-test-count">
+                            ({{ course_item.mocktests.count }} tests)
+                        </small>
+                    </a>
+                    {% empty %}
+                    <div class="text-muted small">No courses available</div>
+                    {% endfor %}
+                </div>
+                {% if all_courses %}
+                <a href="{% url 'mock_tests' %}" class="course-list-item all-tests-link mt-2">
+                    <span>View All Tests</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="card tests-list-card h-100">
+            <div class="card-body">
+                {% if course %}
+                <h2 class="text-start mb-1">{{ course.name }} Mock Tests</h2>
+                <p class="text-start text-muted mb-3">Select a year to begin the test</p>
+                {% else %}
+                <h2 class="text-start mb-3">All Available Mock Tests</h2>
+                {% if search_query %}
+                <p class="text-start text-muted mb-3">Search results for "{{ search_query }}"</p>
+                {% endif %}
+                {% endif %}
+
+                <div class="list-group">
+
+                {% for test in tests %}
+
+                <a href="{% url 'start_test' test.id %}" class="list-group-item list-group-item-action">
+
+                <h5 class="mb-1">
+                {{ test.course.name }} — {{ test.year }}
+                </h5>
+                <small class="text-muted">Duration: {{ test.duration }} minutes</small>
+
+                </a>
+
+                {% empty %}
+
+                <div class="alert alert-warning">
+                {% if search_query %}
+                No mock tests found for "{{ search_query }}".
+                {% elif course %}
+                No mock tests available yet for {{ course.name }}.
+                {% else %}
+                No mock tests available yet.
+                {% endif %}
+                </div>
+
+                {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+
 <div class="container mt-4">
 
 {% if course %}
@@ -44,5 +122,6 @@ No mock tests available yet.
 </div>
 
 </div>
+{% endif %}
 
 {% endblock %}

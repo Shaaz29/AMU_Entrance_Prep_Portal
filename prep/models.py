@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Course(models.Model):
@@ -74,6 +75,14 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     bio = models.TextField(blank=True)
     photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
+    photo_position_x = models.PositiveSmallIntegerField(
+        default=50,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+    photo_position_y = models.PositiveSmallIntegerField(
+        default=35,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

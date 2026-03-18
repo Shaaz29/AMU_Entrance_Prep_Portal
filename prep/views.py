@@ -232,6 +232,7 @@ def mock_tests(request):
     search_query = (request.GET.get('q') or '').strip()
     tests = MockTest.objects.select_related('course').all()
     selected_course = None
+    all_courses = Course.objects.all().order_by('name')
 
     if selected_course_id.isdigit():
         selected_course = Course.objects.filter(id=int(selected_course_id)).first()
@@ -246,6 +247,7 @@ def mock_tests(request):
         'course': selected_course,
         'search_query': search_query,
         'selected_course_id': selected_course_id,
+        'all_courses': all_courses,
     }
     return render(request, 'mock_test.html', context)
 
@@ -255,7 +257,13 @@ def mock_tests(request):
 def course_mock_tests(request, course_id):
     course = Course.objects.get(id=course_id)
     tests = MockTest.objects.filter(course=course)
-    return render(request, 'mock_test.html', {'tests': tests, 'course': course})
+    all_courses = Course.objects.all().order_by('name')
+    return render(request, 'mock_test.html', {
+        'tests': tests,
+        'course': course,
+        'all_courses': all_courses,
+        'selected_course': course,
+    })
 
 
 # ================= START TEST =================

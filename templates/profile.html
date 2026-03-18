@@ -8,7 +8,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <div class="profile-avatar-wrap">
                         {% if profile_obj.photo %}
-                        <img src="{{ profile_obj.photo.url }}" alt="Profile photo" class="profile-avatar">
+                        <img src="{{ profile_obj.photo.url }}" alt="Profile photo" class="profile-avatar js-profile-avatar" style="object-position: {{ profile_obj.photo_position_x }}% {{ profile_obj.photo_position_y }}%;">
                         {% else %}
                         <div class="profile-avatar profile-avatar-fallback">{{ request.user.username|slice:":1"|upper }}</div>
                         {% endif %}
@@ -73,6 +73,61 @@
                             <p class="text-muted small mb-0 mt-2">Recommended square image (at least 300x300).</p>
                         </div>
 
+                        {{ form.photo_position_x }}
+                        {{ form.photo_position_y }}
+
+                        <div class="profile-photo-adjuster mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <p class="mb-0 fw-semibold">Adjust Photo In Frame</p>
+                                <small class="text-muted">Move until your face is centered</small>
+                            </div>
+
+                            <div class="profile-photo-preview-frame mb-3">
+                                {% if profile_obj.photo %}
+                                <img
+                                    src="{{ profile_obj.photo.url }}"
+                                    alt="Preview"
+                                    class="profile-photo-preview-image"
+                                    id="profile-photo-preview"
+                                    style="object-position: {{ profile_obj.photo_position_x }}% {{ profile_obj.photo_position_y }}%;"
+                                >
+                                {% else %}
+                                <div class="profile-photo-preview-empty" id="profile-photo-preview-empty">
+                                    Upload a photo to adjust framing
+                                </div>
+                                <img
+                                    src=""
+                                    alt="Preview"
+                                    class="profile-photo-preview-image d-none"
+                                    id="profile-photo-preview"
+                                >
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="photo-pos-x" class="form-label small fw-semibold mb-1">Left / Right</label>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="{{ profile_obj.photo_position_x }}"
+                                    class="form-range"
+                                    id="photo-pos-x"
+                                >
+                            </div>
+                            <div>
+                                <label for="photo-pos-y" class="form-label small fw-semibold mb-1">Up / Down</label>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="{{ profile_obj.photo_position_y }}"
+                                    class="form-range"
+                                    id="photo-pos-y"
+                                >
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary profile-save-btn">Save Profile</button>
                     </form>
                 </div>
@@ -122,4 +177,73 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var xSlider = document.getElementById('photo-pos-x');
+    var ySlider = document.getElementById('photo-pos-y');
+    var xInput = document.getElementById('id_photo_position_x');
+    var yInput = document.getElementById('id_photo_position_y');
+    var previewImage = document.getElementById('profile-photo-preview');
+    var previewEmpty = document.getElementById('profile-photo-preview-empty');
+    var fileInput = document.getElementById('id_photo');
+    var heroAvatar = document.querySelector('.js-profile-avatar');
+
+    if (!xSlider || !ySlider || !xInput || !yInput) {
+        return;
+    }
+
+    function clampToPercent(value, fallback) {
+        var parsed = parseInt(value, 10);
+        if (Number.isNaN(parsed)) {
+            return fallback;
+        }
+        if (parsed < 0) {
+            return 0;
+        }
+        if (parsed > 100) {
+            return 100;
+        }
+        return parsed;
+    }
+
+    function applyPosition() {
+        var x = clampToPercent(xSlider.value, 50);
+        var y = clampToPercent(ySlider.value, 35);
+        var positionValue = x + '% ' + y + '%';
+
+        xInput.value = String(x);
+        yInput.value = String(y);
+
+        if (previewImage) {
+            previewImage.style.objectPosition = positionValue;
+        }
+        if (heroAvatar) {
+            heroAvatar.style.objectPosition = positionValue;
+        }
+    }
+
+    xSlider.value = clampToPercent(xInput.value || xSlider.value, 50);
+    ySlider.value = clampToPercent(yInput.value || ySlider.value, 35);
+    applyPosition();
+
+    xSlider.addEventListener('input', applyPosition);
+    ySlider.addEventListener('input', applyPosition);
+
+    if (fileInput && previewImage) {
+        fileInput.addEventListener('change', function (event) {
+            var selectedFile = event.target.files && event.target.files[0];
+            if (!selectedFile) {
+                return;
+            }
+            var localUrl = URL.createObjectURL(selectedFile);
+            previewImage.src = localUrl;
+            previewImage.classList.remove('d-none');
+            if (previewEmpty) {
+                previewEmpty.classList.add('d-none');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
