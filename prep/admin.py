@@ -18,9 +18,14 @@ class MockTestAdmin(ImportExportModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(ImportExportModelAdmin):
-    list_display = ("id", "mocktest", "type", "text", "correct_answer", "has_explanation", "has_concept")
-    list_filter = ("mocktest", "type")
+    list_display = ("id", "mocktest", "text", "correct_answer", "has_explanation", "has_concept")
+    list_filter = ("mocktest",)
     search_fields = ("text", "explanation", "concept")
+    exclude = ("type",)
+
+    def save_model(self, request, obj, form, change):
+        obj.type = 'MCQ'
+        super().save_model(request, obj, form, change)
 
     def has_explanation(self, obj):
         return bool(obj.explanation)

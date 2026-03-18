@@ -9,13 +9,14 @@
     {% csrf_token %}
 
     <div class="mb-3">
-      <label>Select Mock Test</label>
-      <select name="mocktest_id" class="form-control" required>
+      <label>Select Mock Test (optional)</label>
+      <select name="mocktest_id" class="form-control">
         <option value="">-- Select --</option>
         {% for test in tests %}
           <option value="{{ test.id }}">{{ test.course.name }} - {{ test.year }} ({{ test.duration }} min)</option>
         {% endfor %}
       </select>
+      <small class="text-muted">If your Excel has a <strong>mocktest</strong> column (with test IDs like 2), you can leave this blank.</small>
     </div>
 
     <div class="mb-3">

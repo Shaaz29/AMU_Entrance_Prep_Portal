@@ -416,16 +416,16 @@ def upload_questions(request):
     tests = MockTest.objects.select_related('course').all()
 
     if request.method == 'POST':
-        mocktest_id = request.POST.get('mocktest_id')
+        mocktest_id = (request.POST.get('mocktest_id') or '').strip()
         upload_file = request.FILES.get('file')
 
-        if not mocktest_id or not upload_file:
-            messages.error(request, 'Please select a test and choose an Excel file.')
+        if not upload_file:
+            messages.error(request, 'Please choose an Excel file.')
             return render(request, 'upload.html', {'tests': tests})
 
         try:
-            import_questions(upload_file, mocktest_id)
-            messages.success(request, 'Questions uploaded successfully.')
+            created_count = import_questions(upload_file, mocktest_id=mocktest_id or None)
+            messages.success(request, f'{created_count} questions uploaded successfully.')
             return redirect('upload_questions')
         except Exception as exc:
             messages.error(request, f'Upload failed: {exc}')

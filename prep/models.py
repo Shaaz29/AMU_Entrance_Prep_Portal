@@ -26,13 +26,8 @@ class MockTest(models.Model):
 
 
 class Question(models.Model):
-    TYPE_CHOICES = [
-        ('MCQ', 'Multiple Choice'),
-        ('NUM', 'Numerical')
-    ]
-
     mocktest = models.ForeignKey(MockTest, on_delete=models.CASCADE, related_name='questions')
-    type = models.CharField(max_length=3, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=3, default='MCQ', editable=False)
     text = models.TextField()
 
     # MCQ Options
