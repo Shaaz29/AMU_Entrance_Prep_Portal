@@ -38,6 +38,13 @@
 <!-- Navbar Items -->
 <div class="collapse navbar-collapse" id="navbarMenu">
 
+  {% if user.is_authenticated %}
+  <form class="d-flex me-lg-3 mb-2 mb-lg-0" role="search" method="GET" action="/mock-tests/">
+    <input class="form-control form-control-sm" type="search" name="q" placeholder="Search course" aria-label="Search course" value="{{ request.GET.q|default:'' }}">
+    <button class="btn btn-sm btn-light ms-2" type="submit">Search</button>
+  </form>
+  {% endif %}
+
   <ul class="navbar-nav ms-auto align-items-lg-center">
 
     <li class="nav-item">
@@ -51,6 +58,12 @@
     <li class="nav-item">
       <a class="nav-link" href="/dashboard/">Dashboard</a>
     </li>
+
+    {% if user.is_authenticated %}
+    <li class="nav-item">
+      <a class="nav-link" href="/profile/">Profile</a>
+    </li>
+    {% endif %}
 
     {% if user.is_authenticated %}
     <li class="nav-item ms-lg-3">

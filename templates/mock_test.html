@@ -9,6 +9,9 @@
 <p class="text-center text-muted mb-4">Select a year to begin the test</p>
 {% else %}
 <h2 class="text-center mb-4">All Available Mock Tests</h2>
+{% if search_query %}
+<p class="text-center text-muted mb-4">Search results for "{{ search_query }}"</p>
+{% endif %}
 {% endif %}
 
 <div class="list-group">
@@ -27,7 +30,11 @@
 {% empty %}
 
 <div class="alert alert-warning">
+{% if search_query %}
+No mock tests found for "{{ search_query }}".
+{% else %}
 No mock tests available yet for this course.
+{% endif %}
 </div>
 
 {% endfor %}

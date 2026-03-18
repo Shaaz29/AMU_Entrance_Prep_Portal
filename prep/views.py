@@ -5,12 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.conf import settings
+from django.utils.http import url_has_allowed_host_and_scheme
 import requests as http_requests
 from requests import exceptions as req_exceptions
 import logging
 
-from .models import MockTest, Question, Result, Course
+from .models import MockTest, Question, Result, Course, UserProfile
 from .utils import import_questions
+from .forms import UserProfileForm
 
 
 logger = logging.getLogger(__name__)
@@ -195,11 +197,14 @@ def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        next_url = request.POST.get('next') or request.GET.get('next')
 
         user = authenticate(request, username=username, password=password)
 
         if user:
             login(request, user)
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
             return redirect('dashboard')
 
         messages.error(request, "Invalid username or password")
@@ -223,8 +228,18 @@ def dashboard(request):
 # ================= MOCK TEST LIST =================
 @login_required
 def mock_tests(request):
-    tests = MockTest.objects.all()
-    return render(request, 'mock_test.html', {'tests': tests, 'course': None})
+    search_query = (request.GET.get('q') or '').strip()
+    tests = MockTest.objects.select_related('course').all()
+
+    if search_query:
+        tests = tests.filter(course__name__icontains=search_query)
+
+    context = {
+        'tests': tests,
+        'course': None,
+        'search_query': search_query,
+    }
+    return render(request, 'mock_test.html', context)
 
 
 # ================= COURSE MOCK TEST LIST =================
@@ -400,6 +415,55 @@ def upload_questions(request):
             messages.error(request, f'Upload failed: {exc}')
 
     return render(request, 'upload.html', {'tests': tests})
+
+
+@login_required
+def profile(request):
+    profile_obj, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('profile')
+        messages.error(request, 'Please correct the errors in your profile form.')
+    else:
+        form = UserProfileForm(instance=profile_obj)
+
+    attempts_qs = Result.objects.filter(user=request.user).select_related('mocktest', 'mocktest__course').order_by('-date')
+
+    attempts = []
+    percentages = []
+    for item in attempts_qs:
+        total_questions = item.mocktest.questions.count()
+        score_percentage = round((item.score / total_questions) * 100, 1) if total_questions else 0.0
+        percentages.append(score_percentage)
+        attempts.append({
+            'date': item.date,
+            'course_name': item.mocktest.course.name,
+            'year': item.mocktest.year,
+            'score': item.score,
+            'total_questions': total_questions,
+            'score_percentage': score_percentage,
+        })
+
+    total_attempts = len(attempts)
+    unique_mocks = Result.objects.filter(user=request.user).values('mocktest').distinct().count()
+    average_percentage = round(sum(percentages) / total_attempts, 1) if total_attempts else 0.0
+    best_percentage = round(max(percentages), 1) if percentages else 0.0
+    recent_attempts = attempts[:8]
+
+    context = {
+        'profile_obj': profile_obj,
+        'form': form,
+        'total_attempts': total_attempts,
+        'unique_mocks': unique_mocks,
+        'average_percentage': average_percentage,
+        'best_percentage': best_percentage,
+        'recent_attempts': recent_attempts,
+    }
+    return render(request, 'profile.html', context)
 
 
 @login_required

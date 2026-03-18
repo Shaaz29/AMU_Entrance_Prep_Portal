@@ -138,7 +138,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ================= MEDIA FILES =================
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', str(BASE_DIR / 'media'))
 
 
 # ================= AUTH REDIRECT =================

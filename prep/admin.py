@@ -1,6 +1,6 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-from .models import Course, MockTest, Question, Result
+from .models import Course, MockTest, Question, Result, UserProfile
 
 
 @admin.register(Course)
@@ -40,3 +40,9 @@ class ResultAdmin(ImportExportModelAdmin):
     list_display = ("id", "user", "mocktest", "score", "date")
     list_filter = ("mocktest", "date")
     search_fields = ("user__username",)
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(ImportExportModelAdmin):
+    list_display = ("id", "user", "full_name", "phone", "updated_at")
+    search_fields = ("user__username", "full_name", "phone")

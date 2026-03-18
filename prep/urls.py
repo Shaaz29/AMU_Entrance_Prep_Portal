@@ -13,6 +13,7 @@ urlpatterns = [
 
     # ================= DASHBOARD =================
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('profile/', views.profile, name='profile'),
 
     # ================= MOCK TESTS =================
     path('mock-tests/', views.mock_tests, name='mock_tests'),

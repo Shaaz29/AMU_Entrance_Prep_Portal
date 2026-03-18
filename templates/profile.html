@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="card profile-hero-card mb-4">
+        <div class="card-body p-4 p-lg-5">
+            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="profile-avatar-wrap">
+                        {% if profile_obj.photo %}
+                        <img src="{{ profile_obj.photo.url }}" alt="Profile photo" class="profile-avatar">
+                        {% else %}
+                        <div class="profile-avatar profile-avatar-fallback">{{ request.user.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="profile-kicker mb-1">Student Profile</p>
+                        <h2 class="mb-1">{{ profile_obj.full_name|default:request.user.username }}</h2>
+                        <p class="text-muted mb-0">{{ request.user.email|default:"No email added" }}</p>
+                    </div>
+                </div>
+
+                <div class="profile-chip-grid">
+                    <div class="profile-chip">
+                        <span>Total Attempts</span>
+                        <strong>{{ total_attempts }}</strong>
+                    </div>
+                    <div class="profile-chip">
+                        <span>Unique Mocks</span>
+                        <strong>{{ unique_mocks }}</strong>
+                    </div>
+                    <div class="profile-chip">
+                        <span>Average Score</span>
+                        <strong>{{ average_percentage }}%</strong>
+                    </div>
+                    <div class="profile-chip">
+                        <span>Best Score</span>
+                        <strong>{{ best_percentage }}%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card profile-form-card h-100">
+                <div class="card-body p-4">
+                    <p class="profile-kicker mb-1">Edit Details</p>
+                    <h4 class="mb-3">Personal Information</h4>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Full Name</label>
+                            {{ form.full_name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Phone</label>
+                            {{ form.phone }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Bio</label>
+                            {{ form.bio }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Profile Photo</label>
+                            {{ form.photo }}
+                            <p class="text-muted small mb-0 mt-2">Recommended square image (at least 300x300).</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary profile-save-btn">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card profile-history-card h-100">
+                <div class="card-body p-4">
+                    <p class="profile-kicker mb-1">Performance</p>
+                    <h4 class="mb-3">Recent Mock Test Attempts</h4>
+
+                    {% if recent_attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 profile-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Score</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in recent_attempts %}
+                                <tr>
+                                    <td>{{ item.date|date:"d M Y, h:i A" }}</td>
+                                    <td>{{ item.course_name }}</td>
+                                    <td>{{ item.year }}</td>
+                                    <td>{{ item.score }} / {{ item.total_questions }}</td>
+                                    <td>
+                                        <span class="profile-performance-pill">{{ item.score_percentage }}%</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        No attempts yet. Start a mock test to build your performance profile.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
