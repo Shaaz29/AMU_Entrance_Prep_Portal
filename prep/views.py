@@ -228,16 +228,24 @@ def dashboard(request):
 # ================= MOCK TEST LIST =================
 @login_required
 def mock_tests(request):
+    selected_course_id = (request.GET.get('course_id') or '').strip()
     search_query = (request.GET.get('q') or '').strip()
     tests = MockTest.objects.select_related('course').all()
+    selected_course = None
+
+    if selected_course_id.isdigit():
+        selected_course = Course.objects.filter(id=int(selected_course_id)).first()
+        if selected_course:
+            tests = tests.filter(course=selected_course)
 
     if search_query:
         tests = tests.filter(course__name__icontains=search_query)
 
     context = {
         'tests': tests,
-        'course': None,
+        'course': selected_course,
         'search_query': search_query,
+        'selected_course_id': selected_course_id,
     }
     return render(request, 'mock_test.html', context)
 

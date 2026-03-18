@@ -40,8 +40,13 @@
 
   {% if user.is_authenticated %}
   <form class="d-flex me-lg-3 mb-2 mb-lg-0" role="search" method="GET" action="/mock-tests/">
-    <input class="form-control form-control-sm" type="search" name="q" placeholder="Search course" aria-label="Search course" value="{{ request.GET.q|default:'' }}">
-    <button class="btn btn-sm btn-light ms-2" type="submit">Search</button>
+    <select class="form-select form-select-sm" name="course_id" aria-label="Select course">
+      <option value="">All Courses</option>
+      {% for nav_course in navbar_courses %}
+      <option value="{{ nav_course.id }}" {% if request.GET.course_id == nav_course.id|stringformat:'s' %}selected{% endif %}>{{ nav_course.name }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-sm btn-light ms-2" type="submit">Go</button>
   </form>
   {% endif %}
 

@@ -32,8 +32,10 @@
 <div class="alert alert-warning">
 {% if search_query %}
 No mock tests found for "{{ search_query }}".
+{% elif course %}
+No mock tests available yet for {{ course.name }}.
 {% else %}
-No mock tests available yet for this course.
+No mock tests available yet.
 {% endif %}
 </div>
 
