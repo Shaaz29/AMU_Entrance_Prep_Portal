@@ -140,7 +140,7 @@
 
 						{% if item.question.image %}
 							<div class="diagram-wrap mb-3">
-								<img src="{{ item.question.image.url }}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
+								<img src="{{ item.question.image_url }}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
 								<div class="diagram-fallback d-none">Diagram image is not available.</div>
 							</div>
 						{% endif %}

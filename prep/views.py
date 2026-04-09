@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -164,9 +164,14 @@ def register(request):
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
 
-        if not username or not email or not password:
+        if not username or not email or not password or not confirm_password:
             messages.error(request, "All fields are required")
+            return redirect('register')
+
+        if password != confirm_password:
+            messages.error(request, "Password and confirm password do not match")
             return redirect('register')
 
         if User.objects.filter(username=username).exists():
@@ -255,7 +260,7 @@ def mock_tests(request):
 # ================= COURSE MOCK TEST LIST =================
 @login_required
 def course_mock_tests(request, course_id):
-    course = Course.objects.get(id=course_id)
+    course = get_object_or_404(Course, id=course_id)
     tests = MockTest.objects.filter(course=course)
     all_courses = Course.objects.all().order_by('name')
     return render(request, 'mock_test.html', {
@@ -269,7 +274,7 @@ def course_mock_tests(request, course_id):
 # ================= START TEST =================
 @login_required
 def start_test(request, test_id):
-    test = MockTest.objects.get(id=test_id)
+    test = get_object_or_404(MockTest, id=test_id)
     rules_session_key = f"accepted_rules_test_{test_id}"
 
     if request.method == 'POST' and request.POST.get('accept_rules') == 'yes':
@@ -290,7 +295,7 @@ def start_test(request, test_id):
 @login_required
 def submit_test(request, test_id):
 
-    test = MockTest.objects.get(id=test_id)
+    test = get_object_or_404(MockTest, id=test_id)
     rules_session_key = f"accepted_rules_test_{test_id}"
 
     if not request.session.get(rules_session_key):
@@ -311,18 +316,14 @@ def submit_test(request, test_id):
         user_answer = request.POST.get(f"q{q.id}")
         is_correct = bool(user_answer) and user_answer == q.correct_answer
 
-        if q.type == 'MCQ':
-            option_map = {
-                'A': q.option_a,
-                'B': q.option_b,
-                'C': q.option_c,
-                'D': q.option_d,
-            }
-            user_answer_display = f"{user_answer}. {option_map.get(user_answer, 'Not selected')}" if user_answer else "Not Attempted"
-            correct_answer_display = f"{q.correct_answer}. {option_map.get(q.correct_answer, '')}".strip()
-        else:
-            user_answer_display = user_answer if user_answer else "Not Attempted"
-            correct_answer_display = q.correct_answer
+        option_map = {
+            'A': q.option_a,
+            'B': q.option_b,
+            'C': q.option_c,
+            'D': q.option_d,
+        }
+        user_answer_display = f"{user_answer}. {option_map.get(user_answer, 'Not selected')}" if user_answer else "Not Attempted"
+        correct_answer_display = f"{q.correct_answer}. {option_map.get(q.correct_answer, '')}".strip()
 
         if is_correct:
             score += 1
@@ -396,7 +397,7 @@ def submit_test(request, test_id):
 # ================= RESULT VIEW (REQUIRED FOR URL) =================
 @login_required
 def result(request, test_id):
-    test = MockTest.objects.get(id=test_id)
+    test = get_object_or_404(MockTest, id=test_id)
     questions = Question.objects.filter(mocktest=test)
 
     return render(request, 'result.html', {
@@ -487,9 +488,7 @@ def explain_question(request, question_id):
     if request.method != 'GET':
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
-    question = Question.objects.filter(id=question_id).first()
-    if not question:
-        return JsonResponse({'error': 'Question not found.'}, status=404)
+    question = get_object_or_404(Question, id=question_id)
 
     mode = request.GET.get('mode', 'medium')
     result = _build_live_explanation(question, mode=mode)

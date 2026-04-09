@@ -1,4 +1,9 @@
 import pandas as pd
+import zipfile
+import io
+import os
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from .models import Question, MockTest
 
 
@@ -19,7 +24,22 @@ def _to_int(value):
 
 
 def import_questions(file, mocktest_id=None):
-    df = pd.read_excel(file)
+    is_zip = file.name.lower().endswith('.zip')
+    excel_file = None
+    zfile = None
+
+    if is_zip:
+        zfile = zipfile.ZipFile(file)
+        for name in zfile.namelist():
+            if name.lower().endswith('.xlsx') and not name.startswith('__MACOSX'):
+                excel_file = io.BytesIO(zfile.read(name))
+                break
+        if not excel_file:
+            raise ValueError("No .xlsx file found inside the ZIP archive.")
+    else:
+        excel_file = file
+
+    df = pd.read_excel(excel_file)
     df.columns = [str(col).strip().lower() for col in df.columns]
 
     fallback_mocktest = None
@@ -43,6 +63,20 @@ def import_questions(file, mocktest_id=None):
         if correct_answer not in {'A', 'B', 'C', 'D'}:
             raise ValueError("'correct_answer' must be one of A, B, C, or D.")
 
+        image_val = _clean_cell(row.get('image'))
+        saved_image_path = image_val  # Default to what's in the excel (e.g. a URL)
+
+        if image_val and zfile:
+            # Try to find the matching image in the ZIP
+            matching_names = [n for n in zfile.namelist() if n.endswith(image_val) and not n.startswith('__MACOSX')]
+            if matching_names:
+                actual_name = matching_names[0]
+                image_data = zfile.read(actual_name)
+                clean_filename = os.path.basename(image_val)
+                file_path = f"questions/{clean_filename}"
+                saved_path = default_storage.save(file_path, ContentFile(image_data))
+                saved_image_path = f"media/{saved_path}"
+
         Question.objects.create(
             mocktest=target_mocktest,
             type='MCQ',
@@ -54,6 +88,7 @@ def import_questions(file, mocktest_id=None):
             correct_answer=correct_answer,
             explanation=_clean_cell(row.get('explanation')),
             concept=_clean_cell(row.get('concept')),
+            image=saved_image_path,
         )
         created_count += 1
 

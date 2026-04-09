@@ -1,6 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
-
 {% block content %}
 
 <div class="exam-shell">
@@ -68,13 +66,11 @@
 
 {% if q.image %}
 <div class="diagram-wrap my-3">
-<img src="{% static q.image %}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
+<img src="{{ q.image_url }}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
 <div class="diagram-fallback d-none">Diagram image is not available.</div>
 </div>
 {% endif %}
 
-
-{% if q.type == 'MCQ' %}
 
 <div class="form-check">
 <input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="A">
@@ -95,65 +91,6 @@
 <input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="D">
 <label class="form-check-label">{{ q.option_d }}</label>
 </div>
-
-{% elif q.type == 'NUM' %}
-
-<div class="mb-2 mt-3">
-<label class="form-label fw-semibold">Your Answer:</label>
-
-<input
-type="text"
-id="num_input_{{ q.id }}"
-name="q{{ q.id }}"
-class="form-control num-answer"
-data-qid="{{ q.id }}"
-placeholder="Enter your answer"
-readonly
-style="max-width:220px;font-size:1.2rem;letter-spacing:2px;"
->
-
-</div>
-
-
-<div class="num-keyboard mt-2" style="max-width:260px;">
-<div class="d-flex flex-wrap gap-1">
-
-{% for digit in "0123456789" %}
-
-<button type="button"
-class="btn btn-outline-primary num-key"
-data-digit="{{ digit }}"
-data-target="num_input_{{ q.id }}"
-style="width:52px;height:48px;font-size:1.1rem;">
-
-{{ digit }}
-
-</button>
-
-{% endfor %}
-
-<button type="button"
-class="btn btn-outline-danger num-key-clear"
-data-target="num_input_{{ q.id }}"
-style="width:52px;height:48px;font-size:1.1rem;">
-
-C
-
-</button>
-
-<button type="button"
-class="btn btn-outline-warning num-key-back"
-data-target="num_input_{{ q.id }}"
-style="width:52px;height:48px;font-size:1.1rem;">
-
-&#9003;
-
-</button>
-
-</div>
-</div>
-
-{% endif %}
 
 </div>
 </div>
@@ -249,12 +186,6 @@ document.querySelectorAll(".answer:checked").forEach(function(){
 answered++;
 });
 
-document.querySelectorAll(".num-answer").forEach(function(input){
-if(input.value.trim() !== ""){
-answered++;
-}
-});
-
 document.getElementById("answeredCount").innerText = answered;
 
 let percent = (answered / total) * 100;
@@ -289,89 +220,6 @@ updateProgress();
 });
 
 });
-
-
-
-/* NUMERIC KEYPAD */
-
-document.querySelectorAll(".num-key").forEach(function(btn){
-
-btn.addEventListener("click", function(){
-
-var targetId = this.getAttribute("data-target");
-var digit = this.getAttribute("data-digit");
-
-var input = document.getElementById(targetId);
-
-if(input) input.value += digit;
-
-markNumAnswered(input);
-
-});
-
-});
-
-
-document.querySelectorAll(".num-key-back").forEach(function(btn){
-
-btn.addEventListener("click", function(){
-
-var input = document.getElementById(this.getAttribute("data-target"));
-
-if(input) input.value = input.value.slice(0,-1);
-
-markNumAnswered(input);
-
-});
-
-});
-
-
-document.querySelectorAll(".num-key-clear").forEach(function(btn){
-
-btn.addEventListener("click", function(){
-
-var input = document.getElementById(this.getAttribute("data-target"));
-
-if(input) input.value = "";
-
-markNumAnswered(input);
-
-});
-
-});
-
-
-
-function markNumAnswered(input){
-
-if(!input) return;
-
-var qid = input.getAttribute("data-qid");
-
-var btn = document.getElementById("btn"+qid);
-
-if(!btn) return;
-
-if(input.value.trim() !== ""){
-
-btn.classList.remove("btn-secondary","btn-danger");
-btn.classList.add("btn-success");
-
-}
-
-else{
-
-btn.classList.remove("btn-success");
-btn.classList.add("btn-danger");
-
-}
-
-updateProgress();
-
-}
-
-
 
 /* TIMER */
 

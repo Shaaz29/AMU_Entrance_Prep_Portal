@@ -19,9 +19,17 @@
       <small class="text-muted">If your Excel has a <strong>mocktest</strong> column (with test IDs like 2), you can leave this blank.</small>
     </div>
 
+    <div class="mb-3 bg-light p-3 border rounded">
+      <strong>New: Upload with Images!</strong>
+      <p class="mb-1 text-muted" style="font-size: 0.9em;">
+        You can upload a standard <strong>.xlsx</strong> file, OR you can upload a <strong>.zip</strong> file.<br>
+        If using a .zip file, put your Excel file and all your images in one folder, compress it, and upload the zip. Make sure your Excel file has an <strong>image</strong> column with the exact file name (e.g. <code>q1_math.jpg</code>).
+      </p>
+    </div>
+
     <div class="mb-3">
-      <label>Upload Excel File</label>
-      <input type="file" name="file" class="form-control">
+      <label>Upload File (.xlsx or .zip)</label>
+      <input type="file" name="file" class="form-control" accept=".xlsx, .zip">
     </div>
 
     <button type="submit" class="btn btn-primary">Upload Questions</button>
