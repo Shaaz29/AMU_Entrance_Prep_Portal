@@ -42,12 +42,29 @@ class Question(models.Model):
     # Explanation for answer
     explanation = models.TextField(blank=True)
 
-    # NEW FIELD for deeper concept explanation
-    concept = models.TextField(blank=True, null=True)
 
     # Image path (diagram)
     image = models.CharField(max_length=200, blank=True, null=True)
 
+    # Explanation image path
+    explanation_image = models.CharField(max_length=200, blank=True, null=True)
+
+    @property
+    def explanation_image_url(self):
+        raw = (self.explanation_image or "").strip()
+        if not raw:
+            return ""
+
+        if raw.startswith(("http://", "https://", "/")):
+            return raw
+
+        if raw.startswith("static/"):
+            return f"{settings.STATIC_URL}{raw[len('static/'):]}"
+
+        if raw.startswith("media/"):
+            return f"{settings.MEDIA_URL}{raw[len('media/'):]}"
+
+        return f"{settings.STATIC_URL}{raw}"
     @property
     def image_url(self):
         raw = (self.image or "").strip()

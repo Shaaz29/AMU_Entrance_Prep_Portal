@@ -182,9 +182,14 @@
 							</div>
 
 							<div class="static-explain-content d-none mt-2 alert alert-secondary mb-0">
+								{% if item.question.explanation_image %}
+									<div class="mb-2 text-center bg-white p-2 rounded">
+										<img src="{{ item.question.explanation_image_url }}" class="img-fluid rounded" alt="Explanation image" loading="lazy" style="max-height: 400px; max-width: 100%;">
+									</div>
+								{% endif %}
 								{% if item.explanation %}
 									{{ item.explanation }}
-								{% else %}
+								{% elif not item.question.explanation_image %}
 									Explanation is not available for this question.
 								{% endif %}
 							</div>

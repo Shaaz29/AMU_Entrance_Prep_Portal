@@ -77,6 +77,19 @@ def import_questions(file, mocktest_id=None):
                 saved_path = default_storage.save(file_path, ContentFile(image_data))
                 saved_image_path = f"media/{saved_path}"
 
+        expl_image_val = _clean_cell(row.get('explanation_image'))
+        saved_expl_image_path = expl_image_val
+
+        if expl_image_val and zfile:
+            matching_names = [n for n in zfile.namelist() if n.endswith(expl_image_val) and not n.startswith('__MACOSX')]
+            if matching_names:
+                actual_name = matching_names[0]
+                image_data = zfile.read(actual_name)
+                clean_filename = os.path.basename(expl_image_val)
+                file_path = f"questions/{clean_filename}"
+                saved_path = default_storage.save(file_path, ContentFile(image_data))
+                saved_expl_image_path = f"media/{saved_path}"
+
         Question.objects.create(
             mocktest=target_mocktest,
             type='MCQ',
@@ -87,8 +100,8 @@ def import_questions(file, mocktest_id=None):
             option_d=_clean_cell(row.get('option_d')),
             correct_answer=correct_answer,
             explanation=_clean_cell(row.get('explanation')),
-            concept=_clean_cell(row.get('concept')),
             image=saved_image_path,
+            explanation_image=saved_expl_image_path,
         )
         created_count += 1
 

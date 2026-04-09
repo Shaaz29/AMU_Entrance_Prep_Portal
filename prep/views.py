@@ -56,7 +56,7 @@ def _call_gemini(prompt):
 
 def _build_gemini_prompt(question, mode):
     q_text = question.text.strip()
-    stored_note = (question.concept or question.explanation or '').strip()
+    stored_note = (question.explanation or '').strip()
 
     if question.type == 'MCQ':
         options_block = (
@@ -121,9 +121,7 @@ def _build_fallback_explanation(question, mode):
     else:
         points = [f"Correct answer is {question.correct_answer}."]
 
-    if question.concept:
-        points.append(f"Concept: {question.concept}")
-    elif question.explanation:
+    if question.explanation:
         points.append(f"Explanation: {question.explanation}")
     else:
         points.append("No detailed explanation is available for this question. Add an explanation in the admin panel.")
