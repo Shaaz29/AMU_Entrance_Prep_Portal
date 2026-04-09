@@ -71,30 +71,28 @@
 </div>
 {% endif %}
 
-
 <div class="form-check">
-<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="A">
-<label class="form-check-label">{{ q.option_a }}</label>
-</div>
-
-<div class="form-check">
-<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="B">
-<label class="form-check-label">{{ q.option_b }}</label>
+<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="A" id="q{{ q.id }}_A">
+<label class="form-check-label" for="q{{ q.id }}_A">{{ q.option_a|default:"Option A" }}</label>
 </div>
 
 <div class="form-check">
-<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="C">
-<label class="form-check-label">{{ q.option_c }}</label>
+<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="B" id="q{{ q.id }}_B">
+<label class="form-check-label" for="q{{ q.id }}_B">{{ q.option_b|default:"Option B" }}</label>
 </div>
 
 <div class="form-check">
-<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="D">
-<label class="form-check-label">{{ q.option_d }}</label>
+<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="C" id="q{{ q.id }}_C">
+<label class="form-check-label" for="q{{ q.id }}_C">{{ q.option_c|default:"Option C" }}</label>
+</div>
+
+<div class="form-check">
+<input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="D" id="q{{ q.id }}_D">
+<label class="form-check-label" for="q{{ q.id }}_D">{{ q.option_d|default:"Option D" }}</label>
 </div>
 
 </div>
 </div>
-
 {% endfor %}
 
 <div class="d-flex justify-content-end">
