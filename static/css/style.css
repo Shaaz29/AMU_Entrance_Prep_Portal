@@ -268,13 +268,13 @@ body {
 .card {
     border: none;
     border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     transition: 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
 .card-title {
@@ -806,6 +806,7 @@ footer:hover {
 }
 
 @media (max-width: 991px) {
+
     .analytics-layout,
     .exam-overview-grid {
         grid-template-columns: 1fr;
@@ -1176,6 +1177,7 @@ footer:hover {
         transform: translateX(400px);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -1191,6 +1193,7 @@ footer:hover {
         transform: translateX(0);
         opacity: 1;
     }
+
     to {
         transform: translateX(400px);
         opacity: 0;
