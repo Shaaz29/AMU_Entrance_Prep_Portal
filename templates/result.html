@@ -138,10 +138,11 @@
 
 						<p class="mt-3 mb-2 fw-semibold">{{ item.question.text }}</p>
 
-						{% if item.question.image %}
-							<div class="diagram-wrap mb-3">
-								<img src="{{ item.question.image_url }}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
-								<div class="diagram-fallback d-none">Diagram image is not available.</div>
+						{% if item.question.image_urls_list %}
+							<div class="mb-3">
+								{% for img_url in item.question.image_urls_list %}
+								<img src="{{ img_url }}" class="question-diagram mb-2" alt="Question diagram part {{ forloop.counter }}" loading="lazy" onerror="handleDiagramImageError(this);">
+								{% endfor %}
 							</div>
 						{% endif %}
 

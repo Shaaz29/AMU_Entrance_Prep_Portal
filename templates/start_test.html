@@ -64,9 +64,11 @@
 
 <p class="question-text mb-0">{{ q.text }}</p>
 
-{% if q.image %}
+{% if q.image_urls_list %}
 <div class="diagram-wrap my-3">
-<img src="{{ q.image_url }}" class="question-diagram" alt="Question diagram" loading="lazy" onerror="handleDiagramImageError(this);">
+{% for img_url in q.image_urls_list %}
+<img src="{{ img_url }}" class="question-diagram mb-2" alt="Question diagram part {{ forloop.counter }}" loading="lazy" onerror="handleDiagramImageError(this);">
+{% endfor %}
 <div class="diagram-fallback d-none">Diagram image is not available.</div>
 </div>
 {% endif %}

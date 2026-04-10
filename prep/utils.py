@@ -64,20 +64,29 @@ def import_questions(file, mocktest_id=None):
             raise ValueError("'correct_answer' must be one of A, B, C, or D.")
 
         image_val = _clean_cell(row.get('image'))
-        saved_image_path = image_val  # Default to what's in the excel (e.g. a URL)
-
-        if image_val and zfile:
-            # Extract just the filename in case the user pasted a full path like 'media/questions/img.png'
-            search_name = os.path.basename(image_val)
-            # Try to find the matching image in the ZIP
-            matching_names = [n for n in zfile.namelist() if n.endswith(search_name) and not n.startswith('__MACOSX')]
-            if matching_names:
-                actual_name = matching_names[0]
-                image_data = zfile.read(actual_name)
-                clean_filename = os.path.basename(search_name)
-                file_path = f"questions/{clean_filename}"
-                saved_path = default_storage.save(file_path, ContentFile(image_data))
-                saved_image_path = default_storage.url(saved_path)
+        
+        saved_image_urls = []
+        if image_val:
+            for piece in image_val.split(','):
+                piece = piece.strip()
+                if not piece:
+                    continue
+                
+                saved_url = piece
+                if zfile:
+                    search_name = os.path.basename(piece)
+                    matching_names = [n for n in zfile.namelist() if n.endswith(search_name) and not n.startswith('__MACOSX')]
+                    if matching_names:
+                        actual_name = matching_names[0]
+                        image_data = zfile.read(actual_name)
+                        clean_filename = os.path.basename(search_name)
+                        file_path = f"questions/{clean_filename}"
+                        saved_path = default_storage.save(file_path, ContentFile(image_data))
+                        saved_url = default_storage.url(saved_path)
+                        
+                saved_image_urls.append(saved_url)
+                
+        saved_image_path = ",".join(saved_image_urls) if saved_image_urls else ""
 
         expl_image_val = _clean_cell(row.get('explanation_image'))
         
