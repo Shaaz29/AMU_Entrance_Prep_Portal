@@ -74,8 +74,10 @@
                             <p class="text-muted small mb-0 mt-2">Max 5MB • Accepted: JPG, PNG, GIF, WebP</p>
                         </div>
 
-                        {{ form.photo_position_x }}
-                        {{ form.photo_position_y }}
+                        <div class="d-none">
+                            {{ form.photo_position_x }}
+                            {{ form.photo_position_y }}
+                        </div>
 
                         <div class="profile-photo-adjuster mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -105,27 +107,8 @@
                                 {% endif %}
                             </div>
 
-                            <div class="mb-2">
-                                <label for="photo-pos-x" class="form-label small fw-semibold mb-1">Left / Right</label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value="{{ profile_obj.photo_position_x }}"
-                                    class="form-range"
-                                    id="photo-pos-x"
-                                >
-                            </div>
-                            <div>
-                                <label for="photo-pos-y" class="form-label small fw-semibold mb-1">Up / Down</label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value="{{ profile_obj.photo_position_y }}"
-                                    class="form-range"
-                                    id="photo-pos-y"
-                                >
+                            <div class="text-center text-muted small mt-2">
+                                <i>👆 Click and drag the photo above to adjust its position</i>
                             </div>
                         </div>
 
@@ -184,8 +167,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var xSlider = document.getElementById('photo-pos-x');
-    var ySlider = document.getElementById('photo-pos-y');
     var xInput = document.getElementById('id_photo_position_x');
     var yInput = document.getElementById('id_photo_position_y');
     var previewImage = document.getElementById('profile-photo-preview');
@@ -199,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var saveBtnSpinner = document.getElementById('save-btn-spinner');
     var profileForm = document.querySelector('form[enctype="multipart/form-data"]');
 
-    if (!xSlider || !ySlider || !xInput || !yInput) {
+    if (!xInput || !yInput) {
         return;
     }
 
@@ -217,13 +198,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return parsed;
     }
 
-    function applyPosition() {
-        var x = clampToPercent(xSlider.value, 50);
-        var y = clampToPercent(ySlider.value, 35);
-        var positionValue = x + '% ' + y + '%';
+    var currentX = clampToPercent(xInput.value, 50);
+    var currentY = clampToPercent(yInput.value, 35);
 
-        xInput.value = String(x);
-        yInput.value = String(y);
+    function applyPosition() {
+        var positionValue = currentX + '% ' + currentY + '%';
+        xInput.value = String(currentX);
+        yInput.value = String(currentY);
 
         if (previewImage) {
             previewImage.style.objectPosition = positionValue;
@@ -260,12 +241,68 @@ document.addEventListener('DOMContentLoaded', function () {
         return { valid: true };
     }
 
-    xSlider.value = clampToPercent(xInput.value || xSlider.value, 50);
-    ySlider.value = clampToPercent(yInput.value || ySlider.value, 35);
     applyPosition();
 
-    xSlider.addEventListener('input', applyPosition);
-    ySlider.addEventListener('input', applyPosition);
+    // Drag to adjust logic
+    var isDragging = false;
+    var startMouseX = 0;
+    var startMouseY = 0;
+    var startPosX = 0;
+    var startPosY = 0;
+
+    if (previewImage) {
+        previewImage.style.cursor = 'move';
+        
+        previewImage.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startMouseX = e.clientX;
+            startMouseY = e.clientY;
+            startPosX = currentX;
+            startPosY = currentY;
+            e.preventDefault(); // Prevent native image dragging
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            
+            // Adjust sensitivity (1 pixel drag = ~0.2% movement depending on size)
+            var deltaX = (startMouseX - e.clientX) * 0.5;
+            var deltaY = (startMouseY - e.clientY) * 0.5;
+            
+            currentX = clampToPercent(startPosX + deltaX, 50);
+            currentY = clampToPercent(startPosY + deltaY, 35);
+            
+            applyPosition();
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+        
+        // Touch support
+        previewImage.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 0) {
+                isDragging = true;
+                startMouseX = e.touches[0].clientX;
+                startMouseY = e.touches[0].clientY;
+                startPosX = currentX;
+                startPosY = currentY;
+            }
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging || e.touches.length === 0) return;
+            var deltaX = (startMouseX - e.touches[0].clientX) * 0.5;
+            var deltaY = (startMouseY - e.touches[0].clientY) * 0.5;
+            currentX = clampToPercent(startPosX + deltaX, 50);
+            currentY = clampToPercent(startPosY + deltaY, 35);
+            applyPosition();
+        });
+        
+        document.addEventListener('touchend', function() {
+            isDragging = false;
+        });
+    }
 
     // File input validation
     if (fileInput) {
@@ -298,8 +335,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (resetButton) {
         resetButton.addEventListener('click', function (e) {
             e.preventDefault();
-            xSlider.value = 50;
-            ySlider.value = 35;
+            currentX = 50;
+            currentY = 35;
             applyPosition();
             showToast('Photo position reset to default', 'info');
         });
