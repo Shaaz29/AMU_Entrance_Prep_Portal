@@ -80,18 +80,29 @@ def import_questions(file, mocktest_id=None):
                 saved_image_path = default_storage.url(saved_path)
 
         expl_image_val = _clean_cell(row.get('explanation_image'))
-        saved_expl_image_path = expl_image_val
-
-        if expl_image_val and zfile:
-            search_expl_name = os.path.basename(expl_image_val)
-            matching_names = [n for n in zfile.namelist() if n.endswith(search_expl_name) and not n.startswith('__MACOSX')]
-            if matching_names:
-                actual_name = matching_names[0]
-                image_data = zfile.read(actual_name)
-                clean_filename = os.path.basename(search_expl_name)
-                file_path = f"questions/{clean_filename}"
-                saved_path = default_storage.save(file_path, ContentFile(image_data))
-                saved_expl_image_path = default_storage.url(saved_path)
+        
+        saved_expl_urls = []
+        if expl_image_val:
+            for piece in expl_image_val.split(','):
+                piece = piece.strip()
+                if not piece: 
+                    continue
+                
+                saved_url = piece # default to original value 
+                if zfile:
+                    search_expl_name = os.path.basename(piece)
+                    matching_names = [n for n in zfile.namelist() if n.endswith(search_expl_name) and not n.startswith('__MACOSX')]
+                    if matching_names:
+                        actual_name = matching_names[0]
+                        image_data = zfile.read(actual_name)
+                        clean_filename = os.path.basename(search_expl_name)
+                        file_path = f"questions/{clean_filename}"
+                        saved_path = default_storage.save(file_path, ContentFile(image_data))
+                        saved_url = default_storage.url(saved_path)
+                        
+                saved_expl_urls.append(saved_url)
+                
+        saved_expl_image_path = ",".join(saved_expl_urls) if saved_expl_urls else ""
 
         Question.objects.create(
             mocktest=target_mocktest,

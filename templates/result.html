@@ -163,10 +163,12 @@
 						<!-- Explanation -->
 						<div class="explanation-box mt-3">
 							<div class="static-explain-content mt-2 alert alert-secondary mb-0">
-								{% if item.question.explanation_image %}
+								{% if item.question.explanation_image_urls_list %}
+                                    {% for img_url in item.question.explanation_image_urls_list %}
 									<div class="mb-2 text-center bg-white p-2 rounded">
-										<img src="{{ item.question.explanation_image_url }}" class="img-fluid rounded" alt="Explanation image" loading="lazy" style="max-height: 400px; max-width: 100%;">
+										<img src="{{ img_url }}" class="img-fluid rounded" alt="Explanation image page {{ forloop.counter }}" loading="lazy" style="max-height: 400px; max-width: 100%;">
 									</div>
+                                    {% endfor %}
 								{% endif %}
 								{% if item.explanation %}
 									{{ item.explanation }}

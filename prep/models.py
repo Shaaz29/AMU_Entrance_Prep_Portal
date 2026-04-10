@@ -46,25 +46,34 @@ class Question(models.Model):
     # Image path (diagram)
     image = models.CharField(max_length=200, blank=True, null=True)
 
-    # Explanation image path
-    explanation_image = models.CharField(max_length=200, blank=True, null=True)
+    # Explanation image path or comma-separated image paths
+    explanation_image = models.TextField(blank=True, null=True)
+
+    @property
+    def explanation_image_urls_list(self):
+        raw = (self.explanation_image or "").strip()
+        if not raw:
+            return []
+            
+        urls = []
+        for img in raw.split(','):
+            img = img.strip()
+            if not img:
+                continue
+            if img.startswith(("http://", "https://", "/")):
+                urls.append(img)
+            elif img.startswith("static/"):
+                urls.append(f"{settings.STATIC_URL}{img[len('static/'):]}")
+            elif img.startswith("media/"):
+                urls.append(f"{settings.MEDIA_URL}{img[len('media/'):]}")
+            else:
+                urls.append(f"{settings.STATIC_URL}{img}")
+        return urls
 
     @property
     def explanation_image_url(self):
-        raw = (self.explanation_image or "").strip()
-        if not raw:
-            return ""
-
-        if raw.startswith(("http://", "https://", "/")):
-            return raw
-
-        if raw.startswith("static/"):
-            return f"{settings.STATIC_URL}{raw[len('static/'):]}"
-
-        if raw.startswith("media/"):
-            return f"{settings.MEDIA_URL}{raw[len('media/'):]}"
-
-        return f"{settings.STATIC_URL}{raw}"
+        urls = self.explanation_image_urls_list
+        return urls[0] if urls else ""
     @property
     def image_url(self):
         raw = (self.image or "").strip()
