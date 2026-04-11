@@ -2,6 +2,7 @@ import pandas as pd
 import zipfile
 import io
 import os
+import concurrent.futures
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from .models import Question, MockTest
@@ -21,6 +22,12 @@ def _to_int(value):
         return int(float(cleaned))
     except (ValueError, TypeError):
         return None
+
+
+def upload_to_cloud(file_path, image_data):
+    """Helper purely for threading the I/O Cloudinary upload."""
+    saved_path = default_storage.save(file_path, ContentFile(image_data))
+    return default_storage.url(saved_path)
 
 
 def import_questions(file, mocktest_id=None):
@@ -46,85 +53,102 @@ def import_questions(file, mocktest_id=None):
     if mocktest_id:
         fallback_mocktest = MockTest.objects.get(id=mocktest_id)
 
+    questions_to_create = []
+    
+    # 1. First Pass: Read everything into memory, read from zip (sync), queue uploads (async)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+        
+        for _, row in df.iterrows():
+            row_mocktest_id = _to_int(row.get('mocktest'))
+            target_mocktest = None
+
+            if row_mocktest_id is not None:
+                target_mocktest = MockTest.objects.get(id=row_mocktest_id)
+            elif fallback_mocktest is not None:
+                target_mocktest = fallback_mocktest
+            else:
+                raise ValueError("Each row must include a valid 'mocktest' id when no test is selected in the upload form.")
+
+            correct_answer = _clean_cell(row.get('correct_answer')).upper()
+            if correct_answer not in {'A', 'B', 'C', 'D'}:
+                raise ValueError("'correct_answer' must be one of A, B, C, or D.")
+
+            q_data = {
+                'mocktest': target_mocktest,
+                'type': 'MCQ',
+                'text': _clean_cell(row.get('question')),
+                'option_a': _clean_cell(row.get('option_a')),
+                'option_b': _clean_cell(row.get('option_b')),
+                'option_c': _clean_cell(row.get('option_c')),
+                'option_d': _clean_cell(row.get('option_d')),
+                'correct_answer': correct_answer,
+                'explanation': _clean_cell(row.get('explanation')),
+                'image_pieces': [],
+                'explanation_image_pieces': []
+            }
+            
+            # Inner helper to process images for a specific cell string
+            def schedule_images(val_str, field_key):
+                if not val_str:
+                    return
+                for piece in val_str.split(','):
+                    piece = piece.strip()
+                    if not piece: continue
+                    
+                    found_in_zip = False
+                    if zfile:
+                        search_name = os.path.basename(piece)
+                        matching_names = [n for n in zfile.namelist() if n.endswith(search_name) and not n.startswith('__MACOSX')]
+                        if matching_names:
+                            actual_name = matching_names[0]
+                            # Read bytes SYNCHRONOUSLY from the zip file (thread safe)
+                            image_data = zfile.read(actual_name)
+                            clean_filename = os.path.basename(search_name)
+                            file_path = f"questions/{clean_filename}"
+                            # Fire thread for the extremely slow Cloudinary API upload
+                            future = executor.submit(upload_to_cloud, file_path, image_data)
+                            q_data[field_key].append({'type': 'future', 'val': future})
+                            found_in_zip = True
+                            
+                    if not found_in_zip:
+                        # E.g. raw urls or filenames without zip
+                        q_data[field_key].append({'type': 'string', 'val': piece})
+
+            # Schedule main images and explanation images
+            schedule_images(_clean_cell(row.get('image')), 'image_pieces')
+            schedule_images(_clean_cell(row.get('explanation_image')), 'explanation_image_pieces')
+
+            questions_to_create.append(q_data)
+
+        # The 'with ThreadPoolExecutor' block waits for all futures to naturally finish before exiting!
+        # So by the time we reach here, ALL 150+ Cloudinary uploads have finished efficiently.
+
+    # 2. Second Pass: Insert precisely into the DB!
     created_count = 0
-
-    for _, row in df.iterrows():
-        row_mocktest_id = _to_int(row.get('mocktest'))
-        target_mocktest = None
-
-        if row_mocktest_id is not None:
-            target_mocktest = MockTest.objects.get(id=row_mocktest_id)
-        elif fallback_mocktest is not None:
-            target_mocktest = fallback_mocktest
-        else:
-            raise ValueError("Each row must include a valid 'mocktest' id when no test is selected in the upload form.")
-
-        correct_answer = _clean_cell(row.get('correct_answer')).upper()
-        if correct_answer not in {'A', 'B', 'C', 'D'}:
-            raise ValueError("'correct_answer' must be one of A, B, C, or D.")
-
-        image_val = _clean_cell(row.get('image'))
+    for q_data in questions_to_create:
         
-        saved_image_urls = []
-        if image_val:
-            for piece in image_val.split(','):
-                piece = piece.strip()
-                if not piece:
-                    continue
-                
-                saved_url = piece
-                if zfile:
-                    search_name = os.path.basename(piece)
-                    matching_names = [n for n in zfile.namelist() if n.endswith(search_name) and not n.startswith('__MACOSX')]
-                    if matching_names:
-                        actual_name = matching_names[0]
-                        image_data = zfile.read(actual_name)
-                        clean_filename = os.path.basename(search_name)
-                        file_path = f"questions/{clean_filename}"
-                        saved_path = default_storage.save(file_path, ContentFile(image_data))
-                        saved_url = default_storage.url(saved_path)
-                        
-                saved_image_urls.append(saved_url)
-                
-        saved_image_path = ",".join(saved_image_urls) if saved_image_urls else ""
-
-        expl_image_val = _clean_cell(row.get('explanation_image'))
-        
-        saved_expl_urls = []
-        if expl_image_val:
-            for piece in expl_image_val.split(','):
-                piece = piece.strip()
-                if not piece: 
-                    continue
-                
-                saved_url = piece # default to original value 
-                if zfile:
-                    search_expl_name = os.path.basename(piece)
-                    matching_names = [n for n in zfile.namelist() if n.endswith(search_expl_name) and not n.startswith('__MACOSX')]
-                    if matching_names:
-                        actual_name = matching_names[0]
-                        image_data = zfile.read(actual_name)
-                        clean_filename = os.path.basename(search_expl_name)
-                        file_path = f"questions/{clean_filename}"
-                        saved_path = default_storage.save(file_path, ContentFile(image_data))
-                        saved_url = default_storage.url(saved_path)
-                        
-                saved_expl_urls.append(saved_url)
-                
-        saved_expl_image_path = ",".join(saved_expl_urls) if saved_expl_urls else ""
+        def resolve_pieces(piece_list):
+            resolved = []
+            for p in piece_list:
+                if p['type'] == 'future':
+                    # Result is instantly available because block is done
+                    resolved.append(p['val'].result())
+                else:
+                    resolved.append(p['val'])
+            return ",".join(resolved) if resolved else ""
 
         Question.objects.create(
-            mocktest=target_mocktest,
-            type='MCQ',
-            text=_clean_cell(row.get('question')),
-            option_a=_clean_cell(row.get('option_a')),
-            option_b=_clean_cell(row.get('option_b')),
-            option_c=_clean_cell(row.get('option_c')),
-            option_d=_clean_cell(row.get('option_d')),
-            correct_answer=correct_answer,
-            explanation=_clean_cell(row.get('explanation')),
-            image=saved_image_path,
-            explanation_image=saved_expl_image_path,
+            mocktest=q_data['mocktest'],
+            type=q_data['type'],
+            text=q_data['text'],
+            option_a=q_data['option_a'],
+            option_b=q_data['option_b'],
+            option_c=q_data['option_c'],
+            option_d=q_data['option_d'],
+            correct_answer=q_data['correct_answer'],
+            explanation=q_data['explanation'],
+            image=resolve_pieces(q_data['image_pieces']),
+            explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
         )
         created_count += 1
 
