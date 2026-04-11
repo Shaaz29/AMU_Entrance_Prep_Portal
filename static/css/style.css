@@ -475,8 +475,8 @@ footer:hover {
 }
 
 .question-diagram {
-    width: 100%;
-    max-width: 800px;
+    max-width: 100%;
+    width: auto;
     height: auto;
     object-fit: contain;
     display: block;
@@ -825,6 +825,25 @@ footer:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
     gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Custom scrollbar for palette-grid */
+.palette-grid::-webkit-scrollbar {
+    width: 5px;
+}
+.palette-grid::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+.palette-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.palette-grid::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .palette-btn {
