@@ -166,8 +166,8 @@
 							<div class="static-explain-content mt-2 alert alert-secondary mb-0">
 								{% if item.question.explanation_image_urls_list %}
                                     {% for img_url in item.question.explanation_image_urls_list %}
-									<div class="mb-2 text-center bg-white p-2 rounded">
-										<img src="{{ img_url }}" class="img-fluid rounded" alt="Explanation image page {{ forloop.counter }}" loading="lazy" style="max-height: 400px; max-width: 100%;">
+									<div class="mb-3 text-center bg-white p-2 rounded border">
+										<img src="{{ img_url }}" class="img-fluid rounded" alt="Explanation image page {{ forloop.counter }}" loading="lazy" style="width: 100%; height: auto;">
 									</div>
                                     {% endfor %}
 								{% endif %}
