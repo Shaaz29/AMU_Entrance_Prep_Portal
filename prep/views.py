@@ -307,8 +307,9 @@ def upload_questions(request):
             def background_upload(file_path, m_id, original_name):
                 try:
                     with open(file_path, 'rb') as f:
-                        setattr(f, 'name', original_name)
+                        print(f"Background upload started for {original_name}...")
                         import_questions(f, mocktest_id=m_id)
+                        print(f"SUCCESS: Background upload perfectly finished for {original_name}!")
                 except Exception as e:
                     logger.error(f"Background upload failed: {e}")
                 finally:
