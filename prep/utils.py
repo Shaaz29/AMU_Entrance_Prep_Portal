@@ -3,8 +3,10 @@ import zipfile
 import io
 import os
 import concurrent.futures
+import time
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.db import transaction
 from .models import Question, MockTest
 
 
@@ -26,9 +28,15 @@ def _to_int(value):
 
 def upload_to_cloud(file_path, image_data):
     """Helper purely for threading the I/O Cloudinary upload."""
-    saved_path = default_storage.save(file_path, ContentFile(image_data))
-    return default_storage.url(saved_path)
-
+    retries = 3
+    for attempt in range(retries):
+        try:
+            saved_path = default_storage.save(file_path, ContentFile(image_data))
+            return default_storage.url(saved_path)
+        except Exception as e:
+            if attempt == retries - 1:
+                raise e
+            time.sleep(1)
 
 def import_questions(file, mocktest_id=None):
     is_zip = file.name.lower().endswith('.zip')
@@ -56,7 +64,7 @@ def import_questions(file, mocktest_id=None):
     questions_to_create = []
     
     # 1. First Pass: Read everything into memory, read from zip (sync), queue uploads (async)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         
         for _, row in df.iterrows():
             row_mocktest_id = _to_int(row.get('mocktest'))
@@ -125,31 +133,32 @@ def import_questions(file, mocktest_id=None):
 
     # 2. Second Pass: Insert precisely into the DB!
     created_count = 0
-    for q_data in questions_to_create:
-        
-        def resolve_pieces(piece_list):
-            resolved = []
-            for p in piece_list:
-                if p['type'] == 'future':
-                    # Result is instantly available because block is done
-                    resolved.append(p['val'].result())
-                else:
-                    resolved.append(p['val'])
-            return ",".join(resolved) if resolved else ""
+    with transaction.atomic():
+        for q_data in questions_to_create:
+            
+            def resolve_pieces(piece_list):
+                resolved = []
+                for p in piece_list:
+                    if p['type'] == 'future':
+                        # Result is instantly available because block is done
+                        resolved.append(p['val'].result())
+                    else:
+                        resolved.append(p['val'])
+                return ",".join(resolved) if resolved else ""
 
-        Question.objects.create(
-            mocktest=q_data['mocktest'],
-            type=q_data['type'],
-            text=q_data['text'],
-            option_a=q_data['option_a'],
-            option_b=q_data['option_b'],
-            option_c=q_data['option_c'],
-            option_d=q_data['option_d'],
-            correct_answer=q_data['correct_answer'],
-            explanation=q_data['explanation'],
-            image=resolve_pieces(q_data['image_pieces']),
-            explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
-        )
-        created_count += 1
+            Question.objects.create(
+                mocktest=q_data['mocktest'],
+                type=q_data['type'],
+                text=q_data['text'],
+                option_a=q_data['option_a'],
+                option_b=q_data['option_b'],
+                option_c=q_data['option_c'],
+                option_d=q_data['option_d'],
+                correct_answer=q_data['correct_answer'],
+                explanation=q_data['explanation'],
+                image=resolve_pieces(q_data['image_pieces']),
+                explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
+            )
+            created_count += 1
 
     return created_count
