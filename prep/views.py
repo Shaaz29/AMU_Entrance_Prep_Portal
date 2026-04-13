@@ -291,11 +291,43 @@ def upload_questions(request):
             return render(request, 'upload.html', {'tests': tests})
 
         try:
-            created_count = import_questions(upload_file, mocktest_id=mocktest_id or None)
-            messages.success(request, f'{created_count} questions uploaded successfully.')
+            import tempfile
+            import threading
+            import os
+            import logging
+            logger = logging.getLogger(__name__)
+
+            # Save the file temporarily so the thread can access it after HTTP request dies
+            ext = ".zip" if upload_file.name.lower().endswith('.zip') else ".xlsx"
+            temp_fd, temp_path = tempfile.mkstemp(suffix=ext)
+            with os.fdopen(temp_fd, 'wb') as out_file:
+                for chunk in upload_file.chunks():
+                    out_file.write(chunk)
+                    
+            def background_upload(file_path, m_id, original_name):
+                try:
+                    with open(file_path, 'rb') as f:
+                        setattr(f, 'name', original_name)
+                        import_questions(f, mocktest_id=m_id)
+                except Exception as e:
+                    logger.error(f"Background upload failed: {e}")
+                finally:
+                    try:
+                        os.remove(file_path)
+                    except:
+                        pass
+
+            thread = threading.Thread(
+                target=background_upload,
+                args=(temp_path, mocktest_id or None, upload_file.name)
+            )
+            thread.daemon = True
+            thread.start()
+
+            messages.success(request, 'Upload started in the background! Your questions will compile automatically and appear in the test within 2-4 minutes. You can safely close or leave this page.')
             return redirect('upload_questions')
         except Exception as exc:
-            messages.error(request, f'Upload failed: {exc}')
+            messages.error(request, f'Upload initialization failed: {exc}')
 
     return render(request, 'upload.html', {'tests': tests})
 
