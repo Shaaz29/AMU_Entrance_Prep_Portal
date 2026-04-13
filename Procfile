@@ -1,1 +1,1 @@
-web: gunicorn amu_portal.wsgi
+web: gunicorn amu_portal.wsgi --timeout 120
