@@ -30,8 +30,6 @@ urlpatterns = [
     # Result Page
     path('result/<int:test_id>/', views.result, name='result'),
 
-    # Free live explanation endpoint
-    path('api/explain-question/<int:question_id>/', views.explain_question, name='explain_question'),
 
     # ================= ADMIN QUESTION UPLOAD =================
     path('upload-questions/', views.upload_questions, name='upload_questions'),

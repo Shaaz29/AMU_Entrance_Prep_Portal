@@ -13,7 +13,7 @@
       <select name="mocktest_id" class="form-control" required>
         <option value="">-- Select a test to attach questions to --</option>
         {% for test in tests %}
-          <option value="{{ test.id }}">{{ test.course.name }} - {{ test.year }} ({{ test.duration }} min)</option>
+        <option value="{{ test.id }}">{{ test.course.name }} - {{ test.year }} ({{ test.duration }} min)</option>
         {% endfor %}
       </select>
       <small class="text-muted">Choose which mock test these questions belong to.</small>
@@ -23,7 +23,9 @@
       <strong>New: Upload with Images!</strong>
       <p class="mb-1 text-muted" style="font-size: 0.9em;">
         You can upload a standard <strong>.xlsx</strong> file, OR you can upload a <strong>.zip</strong> file.<br>
-        If using a .zip file, put your Excel file and all your images in one folder, compress it, and upload the zip. Make sure your Excel file has an <strong>image</strong> column with the exact file name (e.g. <code>q1_math.jpg</code>).
+        If using a .zip file, put your Excel file and all your images in one folder, compress it, and upload the zip.
+        Make sure your Excel file has an <strong>image</strong> column with the exact file name (e.g.
+        <code>q1_math.jpg</code>).
       </p>
     </div>
 

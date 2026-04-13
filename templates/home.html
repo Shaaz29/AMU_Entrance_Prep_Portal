@@ -6,19 +6,19 @@
 <div class="text-center py-5 bg-light rounded" data-aos="fade-up">
     <h1 class="fw-bold">AMU Entrance Preparation Portal</h1>
 
-<p class="lead mt-3">
-    Practice AMU Entrance Exams with <strong>5000+ solved questions</strong>
-    based on previous year papers.
-</p>
+    <p class="lead mt-3">
+        Practice AMU Entrance Exams with <strong>2000+ solved questions</strong>
+        based on previous year papers.
+    </p>
 
-<p>
-    Prepare for <strong>BTech, MCA, MSc Data Science, and MSc Cyber Security</strong>
-    in a real exam environment.
-</p>
+    <p>
+        Prepare for <strong>BTech, MCA, MSc Data Science, and MSc Cyber Security</strong>
+        in a real exam environment.
+    </p>
 
-<a href="{% url 'mock_tests' %}" class="btn btn-primary btn-lg mt-3">
-    Start Practicing
-</a>
+    <a href="{% url 'mock_tests' %}" class="btn btn-primary btn-lg mt-3">
+        Start Practicing
+    </a>
 
 </div>
 
@@ -27,29 +27,29 @@
 <div class="mt-5">
     <h2 class="text-center mb-4" data-aos="fade-up">Available Entrance Courses</h2>
 
-<div class="row g-4">
+    <div class="row g-4">
 
-    {% for course in courses %}
-    <div class="col-md-3" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0 }}00">
-        <div class="card shadow-sm h-100 text-center">
-            <div class="card-body">
-                <h5 class="card-title">{{ course.name }}</h5>
-                <p class="card-text">
-                    Practice AMU {{ course.name }} questions based on previous year exams.
-                </p>
-                <a href="{% url 'course_mock_tests' course.id %}" class="btn btn-outline-primary">
-                    Start Practice
-                </a>
+        {% for course in courses %}
+        <div class="col-md-3" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0 }}00">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.name }}</h5>
+                    <p class="card-text">
+                        Practice AMU {{ course.name }} questions based on previous year exams.
+                    </p>
+                    <a href="{% url 'course_mock_tests' course.id %}" class="btn btn-outline-primary">
+                        Start Practice
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="alert alert-info text-center">No courses available yet.</div>
-    </div>
-    {% endfor %}
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">No courses available yet.</div>
+        </div>
+        {% endfor %}
 
-</div>
+    </div>
 
 </div>
 
@@ -58,24 +58,24 @@
 <div class="mt-5 text-center">
     <h2 class="mb-4" data-aos="fade-up">Platform Highlights</h2>
 
-<div class="row">
+    <div class="row">
 
-    <div class="col-md-4" data-aos="fade-right">
-        <h3 class="fw-bold">5000+</h3>
-        <p>Questions based on previous AMU entrance exams</p>
+        <div class="col-md-4" data-aos="fade-right">
+            <h3 class="fw-bold">5000+</h3>
+            <p>Questions based on previous AMU entrance exams</p>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up">
+            <h3 class="fw-bold">Real Exam Interface</h3>
+            <p>Practice tests designed like the real AMU entrance exam</p>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-left">
+            <h3 class="fw-bold">Instant Results</h3>
+            <p>Get your score immediately after completing a test</p>
+        </div>
+
     </div>
-
-    <div class="col-md-4" data-aos="fade-up">
-        <h3 class="fw-bold">Real Exam Interface</h3>
-        <p>Practice tests designed like the real AMU entrance exam</p>
-    </div>
-
-    <div class="col-md-4" data-aos="fade-left">
-        <h3 class="fw-bold">Instant Results</h3>
-        <p>Get your score immediately after completing a test</p>
-    </div>
-
-</div>
 
 </div>
 
@@ -84,24 +84,24 @@
 <div class="mt-5 text-center">
     <h2 class="mb-4" data-aos="fade-up">Why Use This Portal?</h2>
 
-<div class="row">
+    <div class="row">
 
-    <div class="col-md-4" data-aos="fade-right">
-        <h5>📄 Previous Year Questions</h5>
-        <p>Carefully selected questions from previous AMU entrance exams.</p>
+        <div class="col-md-4" data-aos="fade-right">
+            <h5>📄 Previous Year Questions</h5>
+            <p>Carefully selected questions from previous AMU entrance exams.</p>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up">
+            <h5>⏱ Real Exam Environment</h5>
+            <p>Practice with timer and real test interface.</p>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-left">
+            <h5>📊 Performance Tracking</h5>
+            <p>Track your preparation progress with detailed results.</p>
+        </div>
+
     </div>
-
-    <div class="col-md-4" data-aos="fade-up">
-        <h5>⏱ Real Exam Environment</h5>
-        <p>Practice with timer and real test interface.</p>
-    </div>
-
-    <div class="col-md-4" data-aos="fade-left">
-        <h5>📊 Performance Tracking</h5>
-        <p>Track your preparation progress with detailed results.</p>
-    </div>
-
-</div>
 
 </div>
 
