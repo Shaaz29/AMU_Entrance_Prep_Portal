@@ -81,7 +81,7 @@
                         <div class="card border-0 shadow-sm h-100 course-card popup-hover" style="border-radius: 1rem; transition: transform 0.2s;">
                             <div class="card-body p-4 d-flex flex-column">
                                 <h5 class="fw-bold text-dark mb-2">{{ c.name }}</h5>
-                                <p class="text-muted small mb-4">{{ c.mocktest_set.count }} mock tests available in this course.</p>
+                                <p class="text-muted small mb-4">{{ c.mocktests.count }} mock tests available in this course.</p>
                                 <a href="{% url 'course_mock_tests' c.id %}" class="btn btn-outline-primary btn-sm mt-auto fw-semibold w-100" style="border-radius: 0.75rem;">Explore Exams</a>
                             </div>
                         </div>

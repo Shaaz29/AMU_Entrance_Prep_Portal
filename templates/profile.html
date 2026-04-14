@@ -155,7 +155,7 @@
                         </table>
                     </div>
                     
-                    {% if all_attempts|length > 8 %}
+                    {% if all_attempts %}
                     <div class="mt-3 text-center">
                         <button class="btn btn-outline-secondary w-100 fw-semibold" style="border-radius: 0.75rem;" data-bs-toggle="modal" data-bs-target="#historyModal">
                             View Full History ({{ all_attempts|length }} Attempts)

@@ -97,7 +97,7 @@ def dashboard(request):
     total_tests = MockTest.objects.count()
     total_questions = Question.objects.count()
     
-    courses = Course.objects.prefetch_related('mocktest_set').all().order_by('name')
+    courses = Course.objects.prefetch_related('mocktests').all().order_by('name')
     
     recent_attempts = Result.objects.filter(user=request.user).select_related('mocktest', 'mocktest__course').order_by('-date')[:3]
     all_results = Result.objects.filter(user=request.user).select_related('mocktest')
