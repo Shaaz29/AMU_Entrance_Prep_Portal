@@ -93,7 +93,35 @@ def user_logout(request):
 # ================= DASHBOARD =================
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    total_courses = Course.objects.count()
+    total_tests = MockTest.objects.count()
+    total_questions = Question.objects.count()
+    
+    courses = Course.objects.prefetch_related('mocktest_set').all().order_by('name')
+    
+    recent_attempts = Result.objects.filter(user=request.user).select_related('mocktest', 'mocktest__course').order_by('-date')[:3]
+    all_results = Result.objects.filter(user=request.user).select_related('mocktest')
+    
+    total_score_pct = 0
+    if all_results.exists():
+        for r in all_results:
+            q_count = r.mocktest.questions.count()
+            if q_count > 0:
+                total_score_pct += (r.score / q_count) * 100
+        avg_score = round(total_score_pct / all_results.count(), 1)
+    else:
+        avg_score = 0.0
+
+    context = {
+        'total_courses': total_courses,
+        'total_tests': total_tests,
+        'total_questions': total_questions,
+        'courses': courses,
+        'recent_attempts': recent_attempts,
+        'attempts_count': all_results.count(),
+        'avg_score': avg_score,
+    }
+    return render(request, 'dashboard.html', context)
 
 
 # ================= MOCK TEST LIST =================
@@ -378,6 +406,7 @@ def profile(request):
         'average_percentage': average_percentage,
         'best_percentage': best_percentage,
         'recent_attempts': recent_attempts,
+        'all_attempts': attempts,
     }
     return render(request, 'profile.html', context)
 

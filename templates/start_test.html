@@ -161,7 +161,7 @@ let q = document.getElementById("question"+num);
 if(!q) return;
 
 q.scrollIntoView({
-behavior:"smooth"
+behavior:"auto","block":"start"
 });
 
 let btn = document.getElementById("btn"+num);
@@ -292,3 +292,4 @@ updateProgress();
 </script>
 
 {% endblock %}
+
