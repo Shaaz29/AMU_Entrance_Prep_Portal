@@ -4,7 +4,7 @@
 {% block content %}
 <div class="dashboard-page mb-5">
     <!-- Hero / Welcome Section -->
-    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border-radius: 1rem;">
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(rgba(10, 20, 35, 0.8), rgba(5, 10, 20, 0.92)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Bab_e_syed_amu.jpg/1200px-Bab_e_syed_amu.jpg'); background-size: cover; background-position: center; color: white; border-radius: 1rem;">
         <div class="card-body p-4 p-lg-5">
             <h2 class="fw-bold mb-2">Welcome back, {{ request.user.first_name|default:request.user.username }}! 👋</h2>
             <p class="mb-4" style="opacity: 0.9;">Ready to continue your preparation? Explore our mock tests and track your progress.</p>

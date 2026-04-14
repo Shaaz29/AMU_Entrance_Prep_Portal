@@ -4,11 +4,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.conf import settings
-from django.utils.http import url_has_allowed_host_and_scheme
-import requests as http_requests
-from requests import exceptions as req_exceptions
-import logging
 
 from .models import MockTest, Question, Result, Course, UserProfile
 from .utils import import_questions

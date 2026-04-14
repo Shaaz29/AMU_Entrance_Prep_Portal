@@ -154,26 +154,33 @@ var isAutoSubmitting = false;
 
 /* QUESTION NAVIGATION */
 
-function goToQuestion(num){
+function goToQuestion(num) {
+    let q = document.getElementById("question" + num);
+    if (!q) return;
 
-let q = document.getElementById("question"+num);
+    // Initial snap
+    q.scrollIntoView({ behavior: "auto", block: "start" });
 
-if(!q) return;
+    // Dynamic Image Shift Recalibration:
+    // Forces the browser to aggressively resnap to the exact question 
+    // as Cloudinary images lazily load in the DOM above it.
+    let shiftTicks = 0;
+    let shiftAnchor = setInterval(() => {
+        let rect = q.getBoundingClientRect();
+        // The scroll-margin-top is 130px. If it shifts heavily, pull it back!
+        if (Math.abs(rect.top - 130) > 15) {
+            q.scrollIntoView({ behavior: "auto", block: "start" });
+        }
+        shiftTicks++;
+        if (shiftTicks > 8) clearInterval(shiftAnchor);
+    }, 150);
 
-q.scrollIntoView({
-behavior:"auto","block":"start"
-});
-
-let btn = document.getElementById("btn"+num);
-
-if(btn.classList.contains("btn-secondary")){
-btn.classList.remove("btn-secondary");
-btn.classList.add("btn-danger");
+    let btn = document.getElementById("btn" + num);
+    if (btn && btn.classList.contains("btn-secondary")) {
+        btn.classList.remove("btn-secondary");
+        btn.classList.add("btn-danger");
+    }
 }
-
-}
-
-
 
 /* PROGRESS TRACKER */
 
