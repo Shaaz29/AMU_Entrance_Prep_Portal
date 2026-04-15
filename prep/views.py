@@ -331,30 +331,23 @@ def upload_questions(request):
                 for chunk in upload_file.chunks():
                     out_file.write(chunk)
                     
-            def background_upload(file_path, m_id, original_name):
+            # Convert background thread into immediate high-speed synchronous pipeline.
+            # This prevents WSGI workers from aggressively wiping the active thread and naturally exposes all internal Cloudinary errors to the frontend!
+            try:
+                with open(temp_path, 'rb') as f:
+                    count = import_questions(f, mocktest_id=mocktest_id or None)
+                messages.success(request, f'SUCCESS: {count} questions fully synthesized and deployed to the portal!')
+            except Exception as e:
+                logger.error(f"Synchronous upload failed: {e}")
+                messages.error(request, f'Upload Aborted: {e}')
+            finally:
+                from django.db import connection
+                connection.close()  # Prevent idle connections across massive IO tasks
                 try:
-                    with open(file_path, 'rb') as f:
-                        print(f"Background upload started for {original_name}...")
-                        import_questions(f, mocktest_id=m_id)
-                        print(f"SUCCESS: Background upload perfectly finished for {original_name}!")
-                except Exception as e:
-                    logger.error(f"Background upload failed: {e}")
-                finally:
-                    from django.db import connection
-                    connection.close()
-                    try:
-                        os.remove(file_path)
-                    except:
-                        pass
+                    os.remove(temp_path)
+                except:
+                    pass
 
-            thread = threading.Thread(
-                target=background_upload,
-                args=(temp_path, mocktest_id or None, upload_file.name)
-            )
-            # DO NOT set daemon = True, otherwise Gunicorn WSGI workers kill the thread immediately when the HTTP request finishes!
-            thread.start()
-
-            messages.success(request, 'Upload started in the background! Your questions will compile automatically and appear in the test within 2-4 minutes. You can safely close or leave this page.')
             return redirect('upload_questions')
         except Exception as exc:
             messages.error(request, f'Upload initialization failed: {exc}')

@@ -64,7 +64,7 @@ def import_questions(file, mocktest_id=None):
     questions_to_create = []
     
     # 1. First Pass: Read everything into memory, read from zip (sync), queue uploads (async)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         
         for _, row in df.iterrows():
             row_mocktest_id = _to_int(row.get('mocktest'))
