@@ -25,6 +25,10 @@
         <span class="rule-dot"></span>
         <p class="mb-0">After submission, result, score and explanations will be shown.</p>
       </div>
+      <div class="rule-item">
+        <span class="rule-dot" style="background-color: var(--danger);"></span>
+        <p class="mb-0 text-danger" style="font-weight: 500;"><strong>ANTI-CHEAT POLICY:</strong> You are strictly prohibited from switching tabs, minimizing the browser, or leaving the mock test screen. If you violate this rule 3 times, your test will be permanently locked and auto-submitted.</p>
+      </div>
     </div>
 
     <form method="POST" action="{% url 'start_test' test.id %}" class="mt-4" id="rulesForm">
