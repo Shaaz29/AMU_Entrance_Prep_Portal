@@ -158,7 +158,7 @@ function goToQuestion(num) {
     let q = document.getElementById("question" + num);
     if (!q) return;
 
-    q.scrollIntoView({ behavior: "smooth", block: "start" });
+    q.scrollIntoView({ behavior: "auto", block: "start" });
 
     let btn = document.getElementById("btn" + num);
     if (btn && btn.classList.contains("btn-secondary")) {
