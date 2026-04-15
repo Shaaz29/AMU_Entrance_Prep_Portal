@@ -340,6 +340,8 @@ def upload_questions(request):
                 except Exception as e:
                     logger.error(f"Background upload failed: {e}")
                 finally:
+                    from django.db import connection
+                    connection.close()
                     try:
                         os.remove(file_path)
                     except:
@@ -349,7 +351,7 @@ def upload_questions(request):
                 target=background_upload,
                 args=(temp_path, mocktest_id or None, upload_file.name)
             )
-            thread.daemon = True
+            # DO NOT set daemon = True, otherwise Gunicorn WSGI workers kill the thread immediately when the HTTP request finishes!
             thread.start()
 
             messages.success(request, 'Upload started in the background! Your questions will compile automatically and appear in the test within 2-4 minutes. You can safely close or leave this page.')
