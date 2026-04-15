@@ -279,6 +279,23 @@ renderTimerState();
 
 },1000);
 
+/* ANTI CHEAT SYSTEM */
+var violationCount = 0;
+var maxViolations = 3;
+
+document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+        violationCount++;
+        if (violationCount >= maxViolations) {
+            alert("Security Violation: You have switched tabs or left the mock window " + violationCount + " times. This violates exam integrity. Your test will now be automatically submitted.");
+            isAutoSubmitting = true;
+            document.getElementById("testForm").submit();
+        } else {
+            alert("WARNING (Violation " + violationCount + " of " + maxViolations + "): Switching tabs or leaving the screen is strictly prohibited during the mock test. If you hit the limit, your progress will be locked and automatically submitted!");
+        }
+    }
+});
+
 updateProgress();
 
 </script>
