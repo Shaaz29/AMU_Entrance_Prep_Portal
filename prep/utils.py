@@ -133,32 +133,39 @@ def import_questions(file, mocktest_id=None):
 
     # 2. Second Pass: Insert precisely into the DB!
     created_count = 0
-    with transaction.atomic():
-        for q_data in questions_to_create:
-            
-            def resolve_pieces(piece_list):
-                resolved = []
-                for p in piece_list:
-                    if p['type'] == 'future':
-                        # Result is instantly available because block is done
-                        resolved.append(p['val'].result())
-                    else:
-                        resolved.append(p['val'])
-                return ",".join(resolved) if resolved else ""
+    import logging
+    logger = logging.getLogger(__name__)
 
-            Question.objects.create(
-                mocktest=q_data['mocktest'],
-                type=q_data['type'],
-                text=q_data['text'],
-                option_a=q_data['option_a'],
-                option_b=q_data['option_b'],
-                option_c=q_data['option_c'],
-                option_d=q_data['option_d'],
-                correct_answer=q_data['correct_answer'],
-                explanation=q_data['explanation'],
-                image=resolve_pieces(q_data['image_pieces']),
-                explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
-            )
+    for q_data in questions_to_create:
+        try:
+            with transaction.atomic():
+                def resolve_pieces(piece_list):
+                    resolved = []
+                    for p in piece_list:
+                        if p['type'] == 'future':
+                            # Enforce a secure fetch, if this particular Cloudinary image crashed, it throws here.
+                            resolved.append(p['val'].result())
+                        else:
+                            resolved.append(p['val'])
+                    return ",".join(resolved) if resolved else ""
+
+                Question.objects.create(
+                    mocktest=q_data['mocktest'],
+                    type=q_data['type'],
+                    text=q_data['text'],
+                    option_a=q_data['option_a'],
+                    option_b=q_data['option_b'],
+                    option_c=q_data['option_c'],
+                    option_d=q_data['option_d'],
+                    correct_answer=q_data['correct_answer'],
+                    explanation=q_data['explanation'],
+                    image=resolve_pieces(q_data['image_pieces']),
+                    explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
+                )
+            # If the transaction block succeeds completely, count it!
             created_count += 1
+        except Exception as e:
+            # A single question failed (e.g. cloud crash, bad format), log it and SKIP IT without killing the rest!
+            logger.error(f"Failed to synthesize question '{q_data['text'][:30]}...': {e}")
 
     return created_count
