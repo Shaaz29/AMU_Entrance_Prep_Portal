@@ -255,14 +255,16 @@ def submit_test(request, test_id):
     rank = Result.objects.filter(mocktest=test, score__gt=score).count() + 1
     rank_percentile = round(((total_attempts - rank + 1) / total_attempts) * 100) if total_attempts else 0
 
-    if rank_percentile >= 90:
-        performance_remark = "Outstanding performance."
-    elif rank_percentile >= 70:
-        performance_remark = "Very good work."
-    elif rank_percentile >= 50:
-        performance_remark = "Good effort."
+    if correct_percentage >= 90:
+        performance_remark = "Excellent work! Your preparation is top-notch. Keep it up!"
+    elif correct_percentage >= 75:
+        performance_remark = "Great job! You have a solid grasp of the concepts, just a little more practice needed."
+    elif correct_percentage >= 50:
+        performance_remark = "Good effort, but there is room for improvement. Focus on the questions you missed."
+    elif correct_percentage >= 30:
+        performance_remark = "You're getting there, but you need to revise key topics. Don't give up!"
     else:
-        performance_remark = "Keep practicing."
+        performance_remark = "This score shows you need a thorough revision of the basics. Start practicing more intensely for future improvement."
 
     if rules_session_key in request.session:
         del request.session[rules_session_key]
