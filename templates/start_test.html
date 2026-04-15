@@ -64,14 +64,14 @@
 
 <p class="question-text mb-0">{{ q.text }}</p>
 
-{% if q.image_urls_list %}
-<div class="diagram-wrap my-3">
-{% for img_url in q.image_urls_list %}
-<img src="{{ img_url }}" class="question-diagram mb-2" alt="Question diagram part {{ forloop.counter }}" loading="lazy" onerror="handleDiagramImageError(this);">
-{% endfor %}
-<div class="diagram-fallback d-none">Diagram image is not available.</div>
-</div>
-{% endif %}
+    {% if q.image_urls_list %}
+    <div class="diagram-wrap my-3">
+        {% for img_url in q.image_urls_list %}
+            <img src="{{ img_url }}" class="question-diagram mb-2" alt="Question diagram part {{ forloop.counter }}" onerror="handleDiagramImageError(this);">
+        {% endfor %}
+        <div class="diagram-fallback d-none">Diagram image is not available.</div>
+    </div>
+    {% endif %}
 
 <div class="form-check">
 <input class="form-check-input answer" type="radio" name="q{{ q.id }}" value="A" id="q{{ q.id }}_A">
@@ -158,22 +158,7 @@ function goToQuestion(num) {
     let q = document.getElementById("question" + num);
     if (!q) return;
 
-    // Initial snap
-    q.scrollIntoView({ behavior: "auto", block: "start" });
-
-    // Dynamic Image Shift Recalibration:
-    // Forces the browser to aggressively resnap to the exact question 
-    // as Cloudinary images lazily load in the DOM above it.
-    let shiftTicks = 0;
-    let shiftAnchor = setInterval(() => {
-        let rect = q.getBoundingClientRect();
-        // The scroll-margin-top is 130px. If it shifts heavily, pull it back!
-        if (Math.abs(rect.top - 130) > 15) {
-            q.scrollIntoView({ behavior: "auto", block: "start" });
-        }
-        shiftTicks++;
-        if (shiftTicks > 8) clearInterval(shiftAnchor);
-    }, 150);
+    q.scrollIntoView({ behavior: "smooth", block: "start" });
 
     let btn = document.getElementById("btn" + num);
     if (btn && btn.classList.contains("btn-secondary")) {

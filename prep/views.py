@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+import logging
 
 from .models import MockTest, Question, Result, Course, UserProfile
 from .utils import import_questions
