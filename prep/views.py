@@ -221,6 +221,7 @@ def submit_test(request, test_id):
             correct_count += 1
             review_status = 'correct'
         elif user_answer:
+            score -= 0.25
             incorrect_count += 1
             review_status = 'incorrect'
         else:
