@@ -413,3 +413,97 @@ def profile(request):
     }
     return render(request, 'profile.html', context)
 
+
+# ================= PASSWORD RESET (BREVO) =================
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import PasswordResetOTP
+import random
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            messages.error(request, "If an account exists for this email, an OTP has been sent.")
+            return redirect('forgot_password')
+
+        # Clear old tokens blindly to prevent buildup
+        PasswordResetOTP.objects.filter(user=user).delete()
+        code = str(random.randint(100000, 999999))
+        PasswordResetOTP.objects.create(user=user, otp=code)
+
+        try:
+            send_mail(
+                subject="Your Security Code - AMU Entrance Portal",
+                message=f"Hello,\n\nA password reset was requested for your account.\n\nYour 6-digit security code is: {code}\n\nThis code will magically self-destruct in precisely 10 minutes.\n\nIf you did not request this, please ignore this email.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            request.session['reset_email'] = user.email
+            return redirect('verify_otp')
+        except Exception as e:
+            messages.error(request, f"SMTP Network Error: Cannot connect to Brevo server. {e}")
+            return redirect('forgot_password')
+
+    return render(request, 'forgot_password.html')
+
+
+def verify_otp(request):
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        otp_input = request.POST.get('otp', '').strip()
+        user = User.objects.filter(email__iexact=email).first()
+
+        if user:
+            token = PasswordResetOTP.objects.filter(user=user).last()
+            if not token:
+                messages.error(request, "No valid token found. Please request a new one.")
+                return redirect('forgot_password')
+
+            if token.is_expired():
+                messages.error(request, "This security code has mathematically expired. You must request a new one.")
+                return redirect('forgot_password')
+
+            if token.otp == otp_input:
+                request.session['verified_otp'] = True
+                return redirect('reset_password')
+            else:
+                messages.error(request, "The code you entered does not uniquely match our records.")
+
+    return render(request, 'verify_otp.html', {'email': email})
+
+
+def reset_password(request):
+    email = request.session.get('reset_email')
+    verified = request.session.get('verified_otp')
+    if not email or not verified:
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        pwd1 = request.POST.get('password')
+        pwd2 = request.POST.get('confirm_password')
+
+        if pwd1 != pwd2:
+            messages.error(request, "Passwords mathematically mismatch. Try again!")
+        elif len(pwd1) < 8:
+            messages.error(request, "For your security, passwords must be at least 8 characters.")
+        else:
+            user = User.objects.filter(email__iexact=email).first()
+            if user:
+                user.set_password(pwd1)
+                user.save()
+                PasswordResetOTP.objects.filter(user=user).delete()
+                
+                # Wipe temporary security layers from session
+                del request.session['reset_email']
+                del request.session['verified_otp']
+                
+                messages.success(request, "Password securely locked! You may now login via the standard interface.")
+                return redirect('login')
+
+    return render(request, 'reset_password.html')

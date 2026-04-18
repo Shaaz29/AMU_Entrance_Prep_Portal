@@ -3,6 +3,16 @@
 {% block content %}
 
 {% if user.is_authenticated %}
+<div class="mock-test-page mb-5">
+    
+    <!-- Hero / Welcome Section -->
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(rgba(10, 20, 35, 0.85), rgba(16, 42, 67, 0.95)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Bab_e_syed_amu.jpg/1200px-Bab_e_syed_amu.jpg'); background-size: cover; background-position: center; color: white; border-radius: 1rem;">
+        <div class="card-body p-4 p-lg-5 text-center text-md-start">
+            <h2 class="fw-bold mb-2">The Mock Test Arena 🎯</h2>
+            <p class="mb-0" style="opacity: 0.9; max-width: 650px;">Sharpen your skills, benchmark your performance, and perfectly simulate the real AMU entrance environment. Select a target exam below.</p>
+        </div>
+    </div>
+
 <div class="row g-4 mb-4">
     <div class="col-lg-3">
         <div class="card course-list-card h-100">
@@ -37,93 +47,202 @@
     </div>
 
     <div class="col-lg-9">
-        <div class="card tests-list-card h-100">
-            <div class="card-body">
+        <div class="card tests-list-card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
                 {% if course %}
-                <h2 class="text-start mb-1">{{ course.name }} Mock Tests</h2>
-                <p class="text-start text-muted mb-3">Select a year to begin the test</p>
+                <h2 class="text-start mb-0 fw-bold" style="color: #102a43;">{{ course.name }} Mock Tests</h2>
+                <p class="text-start text-muted mt-1">Select an examination year to begin your target</p>
                 {% else %}
-                <h2 class="text-start mb-3">All Available Mock Tests</h2>
+                <h2 class="text-start mb-0 fw-bold" style="color: #102a43;">All Available Mock Tests</h2>
                 {% if search_query %}
-                <p class="text-start text-muted mb-3">Search results for "{{ search_query }}"</p>
+                <p class="text-start text-muted mt-1">Search results for "<span class="text-primary">{{ search_query }}</span>"</p>
+                {% else %}
+                <p class="text-start text-muted mt-1">Select a test below to simulate the exam environment</p>
                 {% endif %}
                 {% endif %}
-
-                <div class="list-group">
+            </div>
+            
+            <div class="card-body px-4 pb-4">
+                <style>
+                    .premium-test-card {
+                        background: #ffffff;
+                        border: 1px solid rgba(0,0,0,0.05);
+                        border-radius: 12px;
+                        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+                        padding: 1.25rem 1.5rem;
+                        display: block;
+                        text-decoration: none;
+                        margin-bottom: 1rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .premium-test-card::before {
+                        content: "";
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        height: 100%;
+                        width: 4px;
+                        background: linear-gradient(135deg, #102a43, var(--primary));
+                        border-radius: 12px 0 0 12px;
+                        transform: scaleY(0);
+                        transition: transform 0.3s ease;
+                    }
+                    .premium-test-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+                        background: #f8fafc;
+                        border-color: rgba(16, 42, 67, 0.1);
+                    }
+                    .premium-test-card:hover::before {
+                        transform: scaleY(1);
+                    }
+                    .test-title { color: #102a43; transition: color 0.2s ease; }
+                    .premium-test-card:hover .test-title { color: var(--primary); }
+                    .test-btn {
+                        background: rgba(16, 42, 67, 0.05);
+                        color: #102a43;
+                        border-radius: 50px;
+                        padding: 0.4rem 1.2rem;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    }
+                    .premium-test-card:hover .test-btn {
+                        background: var(--primary);
+                        color: white;
+                    }
+                </style>
 
                 {% for test in tests %}
-
-                <a href="{% url 'start_test' test.id %}" class="list-group-item list-group-item-action">
-
-                <h5 class="mb-1">
-                {{ test.course.name }} — {{ test.year }}
-                </h5>
-                <small class="text-muted">Duration: {{ test.duration }} minutes</small>
-
+                <a href="{% url 'start_test' test.id %}" class="premium-test-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 fw-bold test-title">
+                            {{ test.course.name }} — {{ test.year }}
+                            </h5>
+                            <small class="text-muted"><i class="bi bi-clock-history me-1"></i> Duration: {{ test.duration }} minutes</small>
+                        </div>
+                        <div>
+                            <span class="test-btn d-none d-sm-inline-block">Start Target <i class="bi bi-arrow-right ms-1"></i></span>
+                        </div>
+                    </div>
                 </a>
-
                 {% empty %}
-
-                <div class="alert alert-warning">
-                {% if search_query %}
-                No mock tests found for "{{ search_query }}".
-                {% elif course %}
-                No mock tests available yet for {{ course.name }}.
-                {% else %}
-                No mock tests available yet.
-                {% endif %}
+                <div class="alert alert-light border text-center p-5" style="border-radius: 12px;">
+                    <i class="bi bi-folder-x text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0 fs-5">
+                    {% if search_query %}No mock tests found matching your search.{% elif course %}Preparation algorithms are still syncing for {{ course.name }}.{% else %}No official tests have been released yet.{% endif %}
+                    </p>
                 </div>
-
                 {% endfor %}
-
-                </div>
             </div>
+        </div>
         </div>
     </div>
 </div>
+</div>
 {% else %}
+
+<div class="mock-test-page mb-5">
+    <!-- Hero / Welcome Section for Guests -->
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(rgba(10, 20, 35, 0.85), rgba(16, 42, 67, 0.95)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Bab_e_syed_amu.jpg/1200px-Bab_e_syed_amu.jpg'); background-size: cover; background-position: center; color: white; border-radius: 1rem;">
+        <div class="card-body p-4 p-lg-5 text-center text-md-start">
+            <h2 class="fw-bold mb-2">The Mock Test Arena 🎯</h2>
+            <p class="mb-0" style="opacity: 0.9; max-width: 650px;">Sharpen your skills, benchmark your performance, and perfectly simulate the real AMU entrance environment. Login to track your progress.</p>
+        </div>
+    </div>
 
 <div class="container mt-4">
+    <div class="card shadow-sm border-0 mx-auto" style="border-radius: 15px; max-width: 800px; overflow: hidden;">
+        <div class="card-header bg-white border-0 pt-4 pb-2 text-center">
+            {% if course %}
+            <h2 class="mb-1 fw-bold" style="color: #102a43;">{{ course.name }} Mock Tests</h2>
+            <p class="text-muted">Select an examination year to begin</p>
+            {% else %}
+            <h2 class="mb-1 fw-bold" style="color: #102a43;">All Available Mock Tests</h2>
+            {% if search_query %}
+            <p class="text-muted">Search results for "<span class="text-primary">{{ search_query }}</span>"</p>
+            {% else %}
+            <p class="text-muted">Explore the public catalog of rigorous entrance exams</p>
+            {% endif %}
+            {% endif %}
+        </div>
 
-{% if course %}
-<h2 class="text-center mb-1">{{ course.name }} Mock Tests</h2>
-<p class="text-center text-muted mb-4">Select a year to begin the test</p>
-{% else %}
-<h2 class="text-center mb-4">All Available Mock Tests</h2>
-{% if search_query %}
-<p class="text-center text-muted mb-4">Search results for "{{ search_query }}"</p>
-{% endif %}
-{% endif %}
-
-<div class="list-group">
-
-{% for test in tests %}
-
-<a href="{% url 'start_test' test.id %}" class="list-group-item list-group-item-action">
-
-<h5 class="mb-1">
-{{ test.course.name }} — {{ test.year }}
-</h5>
-<small class="text-muted">Duration: {{ test.duration }} minutes</small>
-
-</a>
-
-{% empty %}
-
-<div class="alert alert-warning">
-{% if search_query %}
-No mock tests found for "{{ search_query }}".
-{% elif course %}
-No mock tests available yet for {{ course.name }}.
-{% else %}
-No mock tests available yet.
-{% endif %}
+        <div class="card-body px-5 pb-5">
+            <style>
+                .premium-test-card {
+                    background: #ffffff;
+                    border: 1px solid rgba(0,0,0,0.05);
+                    border-radius: 12px;
+                    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+                    padding: 1.25rem 1.5rem;
+                    display: block;
+                    text-decoration: none;
+                    margin-bottom: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .premium-test-card::before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    height: 100%;
+                    width: 4px;
+                    background: linear-gradient(135deg, #102a43, var(--primary));
+                    border-radius: 12px 0 0 12px;
+                    transform: scaleY(0);
+                    transition: transform 0.3s ease;
+                }
+                .premium-test-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+                    background: #f8fafc;
+                    border-color: rgba(16, 42, 67, 0.1);
+                }
+                .test-title { color: #102a43; transition: color 0.2s ease; }
+                .premium-test-card:hover .test-title { color: var(--primary); }
+                .test-btn {
+                    background: rgba(16, 42, 67, 0.05);
+                    color: #102a43;
+                    border-radius: 50px;
+                    padding: 0.4rem 1.2rem;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                }
+                .premium-test-card:hover .test-btn {
+                    background: var(--primary);
+                    color: white;
+                }
+            </style>
+            
+            {% for test in tests %}
+            <a href="{% url 'start_test' test.id %}" class="premium-test-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1 fw-bold test-title">
+                        {{ test.course.name }} — {{ test.year }}
+                        </h5>
+                        <small class="text-muted"><i class="bi bi-clock-history me-1"></i> Duration: {{ test.duration }} minutes</small>
+                    </div>
+                    <div>
+                        <span class="test-btn d-none d-sm-inline-block">Start Target <i class="bi bi-arrow-right ms-1"></i></span>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="alert alert-light border text-center p-5" style="border-radius: 12px;">
+                <i class="bi bi-folder-x text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3 mb-0 fs-5">
+                {% if search_query %}No mock tests found matching your search.{% elif course %}Preparation algorithms are still syncing for {{ course.name }}.{% else %}No official tests have been released yet.{% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-
-{% endfor %}
-
-</div>
-
 </div>
 {% endif %}
 

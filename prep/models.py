@@ -138,3 +138,17 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"Profile - {self.user.username}"
+
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_otps')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_expired(self):
+        from django.utils import timezone
+        diff = timezone.now() - self.created_at
+        return diff.total_seconds() > 600
+
+    def __str__(self):
+        return f"OTP for {self.user.email} - {self.otp}"

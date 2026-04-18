@@ -30,6 +30,9 @@
         <div class="mb-3">
           <label class="form-label">Password</label>
           <input type="password" name="password" class="form-control" required>
+          <div class="text-end mt-1">
+            <a href="{% url 'forgot_password' %}" class="small text-decoration-none" style="color: var(--primary);">Forgot Password?</a>
+          </div>
         </div>
 
         <div class="d-grid">
