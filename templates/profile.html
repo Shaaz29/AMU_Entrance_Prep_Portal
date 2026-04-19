@@ -141,7 +141,7 @@
                             </thead>
                             <tbody>
                                 {% for item in recent_attempts %}
-                                <tr>
+                                <tr onclick="window.location.href='{% url 'past_result' item.id %}'" style="cursor: pointer; transition: all 0.2s ease-in-out;" class="position-relative" onmouseover="this.style.backgroundColor='#f8f9fa'; this.style.transform='scale(1.01)';" onmouseout="this.style.backgroundColor=''; this.style.transform='scale(1)';">
                                     <td>{{ item.date|date:"d M Y, h:i A" }}</td>
                                     <td>{{ item.course_name }}</td>
                                     <td>{{ item.year }}</td>
@@ -196,7 +196,7 @@
                 </thead>
                 <tbody>
                     {% for item in all_attempts %}
-                    <tr>
+                    <tr onclick="window.location.href='{% url 'past_result' item.id %}'" style="cursor: pointer; transition: all 0.2s ease-in-out;" onmouseover="this.style.backgroundColor='#f8f9fa'; this.style.transform='scale(1.01)';" onmouseout="this.style.backgroundColor=''; this.style.transform='scale(1)';">
                         <td class="text-nowrap">{{ item.date|date:"d M Y, h:i A" }}</td>
                         <td>{{ item.course_name }}</td>
                         <td>{{ item.year }}</td>

@@ -107,8 +107,9 @@ class Question(models.Model):
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='results')
     mocktest = models.ForeignKey(MockTest, on_delete=models.CASCADE, related_name='results')
-    score = models.IntegerField()
+    score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
+    performance_data = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ['-date']

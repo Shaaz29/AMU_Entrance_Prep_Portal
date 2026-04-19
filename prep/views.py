@@ -230,7 +230,12 @@ def submit_test(request, test_id):
 
         review_items.append({
             'number': idx,
-            'question': q,
+            'question': {
+                'text': q.text,
+                'image_urls_list': q.image_urls_list,
+                'explanation_image_urls_list': q.explanation_image_urls_list,
+                'explanation_image': bool(q.explanation_image)
+            },
             'user_answer': user_answer_display,
             'correct_answer': correct_answer_display,
             'is_correct': is_correct,
@@ -246,10 +251,22 @@ def submit_test(request, test_id):
     incorrect_percentage = pct(incorrect_count, total)
     not_attempted_percentage = pct(not_attempted_count, total)
 
+    history_payload = {
+        'total': total,
+        'review_items': review_items,
+        'correct_count': correct_count,
+        'incorrect_count': incorrect_count,
+        'not_attempted_count': not_attempted_count,
+        'correct_percentage': correct_percentage,
+        'incorrect_percentage': incorrect_percentage,
+        'not_attempted_percentage': not_attempted_percentage
+    }
+
     Result.objects.create(
         user=request.user,
         mocktest=test,
-        score=score
+        score=score,
+        performance_data=history_payload
     )
 
     total_attempts = Result.objects.filter(mocktest=test).count()
@@ -387,6 +404,7 @@ def profile(request):
         score_percentage = round((item.score / total_questions) * 100, 1) if total_questions else 0.0
         percentages.append(score_percentage)
         attempts.append({
+            'id': item.id,
             'date': item.date,
             'course_name': item.mocktest.course.name,
             'year': item.mocktest.year,
@@ -507,3 +525,50 @@ def reset_password(request):
                 return redirect('login')
 
     return render(request, 'reset_password.html')
+
+
+# ================= HISTORICAL ANALYTICS REVIEW =================
+@login_required
+def past_result(request, result_id):
+    result = get_object_or_404(Result, id=result_id, user=request.user)
+    
+    # Check if the result was recorded AFTER the float & json architecture update
+    if not result.performance_data:
+        messages.info(request, "Detailed performance analytics are not available for tests taken prior to the v2 update.")
+        return redirect('profile')
+
+    test = result.mocktest
+    
+    # Calculate real-time percentile and ranking based on current platform data
+    total_attempts = Result.objects.filter(mocktest=test).count()
+    rank = Result.objects.filter(mocktest=test, score__gt=result.score).count() + 1
+    rank_percentile = round(((total_attempts - rank + 1) / total_attempts) * 100) if total_attempts else 0
+
+    # Determine qualitative remark dynamically based on percentage payload
+    percentage = result.performance_data.get('correct_percentage', 0)
+    if percentage >= 90:
+        performance_remark = "Excellent work! Your preparation is top-notch. Keep it up!"
+    elif percentage >= 75:
+        performance_remark = "Great job! You have a solid grasp of the concepts, just a little more practice needed."
+    elif percentage >= 50:
+        performance_remark = "Good effort, but there is room for improvement. Focus on the questions you missed."
+    elif percentage >= 30:
+        performance_remark = "You're getting there, but you need to revise key topics. Don't give up!"
+    else:
+        performance_remark = "This score shows you need a thorough revision of the basics. Start practicing more intensely for future improvement."
+
+    context = {
+        'test': test,
+        'score': result.score,
+        'rank': rank,
+        'rank_percentile': rank_percentile,
+        'total_attempts': total_attempts,
+        'performance_remark': performance_remark,
+        'historical_review': True,
+        'date_attempted': result.date
+    }
+    
+    # Unpack all JSON structural keys seamlessly into Django Template context
+    context.update(result.performance_data)
+
+    return render(request, 'result.html', context)

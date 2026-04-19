@@ -34,6 +34,7 @@ urlpatterns = [
 
     # Result Page
     path('result/<int:test_id>/', views.result, name='result'),
+    path('past-result/<int:result_id>/', views.past_result, name='past_result'),
 
 
     # ================= ADMIN QUESTION UPLOAD =================
