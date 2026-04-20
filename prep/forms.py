@@ -7,10 +7,12 @@ from .models import UserProfile
 class UserProfileForm(forms.ModelForm):
 	class Meta:
 		model = UserProfile
-		fields = ['full_name', 'phone', 'bio', 'photo', 'photo_position_x', 'photo_position_y']
+		fields = ['full_name', 'phone', 'institute', 'degree', 'bio', 'photo', 'photo_position_x', 'photo_position_y']
 		widgets = {
 			'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter full name'}),
 			'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
+			'institute': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your current school or institution'}),
+			'degree': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. B.Tech, Class 12th, B.Sc'}),
 			'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Write something about yourself'}),
 			'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
 			'photo_position_x': forms.HiddenInput(),
