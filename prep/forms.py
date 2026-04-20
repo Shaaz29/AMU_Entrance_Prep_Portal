@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
 
 from .models import UserProfile
 
@@ -21,7 +22,7 @@ class UserProfileForm(forms.ModelForm):
 
 	def clean_photo(self):
 		photo = self.cleaned_data.get('photo')
-		if photo:
+		if photo and isinstance(photo, UploadedFile):
 			# Check file size (max 5MB)
 			if photo.size > 5 * 1024 * 1024:
 				raise ValidationError('Image file size must not exceed 5MB.')
