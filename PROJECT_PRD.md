@@ -1,7 +1,7 @@
 # AMU Entrance Portal - Product Requirements Document (PRD)
 
-Version: 2.1  
-Date: April 15, 2026  
+Version: 3.0  
+Date: April 20, 2026  
 Prepared from the latest codebase optimizations of `AMU_ Entrance_Portal`
 
 ## 1. Product Overview
@@ -22,8 +22,7 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 
 ### Non-Goals (Current Version)
 1. Multi-language learning experience.
-2. Negative marking and weighted scoring rules.
-3. Payments/subscriptions.
+2. Integrated Payments/Subscriptions gateway.
 
 ## 3. Target Users
 1. Aspirants (primary): register/login, attempt mocks, see results, track profile stats.
@@ -47,14 +46,18 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 3. **Flawless Question Palette Navigation**: The test UI disables `loading="lazy"` on heavy exam images. This forces the browser to calculate document heights perfectly on mount, allowing the mock test palette buttons to instantly execute mathematically perfect `scrollIntoView(behavior:"smooth")` native jumps without mid-scroll DOM layout shifts.
 4. MCQ answer capture mapped cleanly across standardized radio forms.
 
-### 4.4 Result and Review
+### 4.4 Result and Review Pipeline
 1. Instant categorization: correct, incorrect, not attempted.
 2. Performance percentiles mapped strictly against cohort metrics.
 3. Per-question review rendering clean dynamic stacks of explanation images directly fetched via Cloudinary.
+4. **Persistent Historical Vault**: Total test performance metadata (JSON payloads mapping individual user responses) is permanently injected into the database via backend serialization, allowing users to historically recreate dynamic result reports seamlessly.
+5. Fractional float scoring supporting strict negative marking matrices.
 
 ### 4.5 Profile and Analytics Container
 1. Robust drag-and-drop avatar framing persisting X/Y crop coordinates (`photo_position_x`, `photo_position_y`).
-2. Quick Stats Dashboard built purely on modern `flex-grow-1` constraints to prevent container intersections or bottom-margin text bleeding, ensuring uniform visual harmony regardless of device height.
+2. Centralized "Personal Information" GUI natively tracking contextual educational metrics (`institute`, `degree`) mapped faithfully to SQLite structural states.
+3. Quick Stats Dashboard built purely on modern `flex-grow-1` constraints to prevent container intersections or bottom-margin text bleeding.
+4. Interactive Historical Analytics table rows built out with hover physics seamlessly routing directly to historical test matrices securely.
 
 ### 4.6 Admin Bulk Ingestion Operations
 1. Threaded `ThreadPoolExecutor` parsing architecture pushing 15+ API requests simultaneously.
@@ -69,8 +72,8 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 1. `Course`: Name.
 2. `MockTest`: Course FK, Year, Duration.
 3. `Question`: MockTest FK, MCQ fields, Cloudinary Textual Arrays.
-4. `Result`: User FK, Score math, Datetime stamps.
-5. `UserProfile`: Auth User FK, Avatar Cloudinary payloads, Interactive X/Y offsets.
+4. `Result`: User FK, Fractional float logic, Datetime stamps, JSON Vault metric storage.
+5. `UserProfile`: Auth User FK, Avatar Cloudinary payloads, Interactive X/Y offsets, Native Educational Parameters.
 
 ## 7. Known Deficits / Backlog
 1. Timer and answer states are client-side only; a hard page refresh zeroes out in-progress test logic.
@@ -85,4 +88,4 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 2. Attempt history line-charts in the Dashboard.
 
 ---
-*Updated April 15, 2026: Architecturally modified to document the deployment of flex-grow-1 UI containers, Eager image fetching DOM math for smooth scrolling, Glassmorphism aesthetic integrations, and backend threaded logging stabilizations.*
+*Updated April 20, 2026: Architecturally modified to document the integration of Persistent Historical Result tracking (JSON Data Models), FloatField negative scoring implementations, and Dynamic Educational Profile Fields.*
