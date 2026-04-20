@@ -388,9 +388,14 @@ def profile(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=profile_obj)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully.')
-            return redirect('profile')
+            try:
+                form.save()
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('profile')
+            except Exception as e:
+                import traceback
+                from django.http import HttpResponse
+                return HttpResponse(f"CRASH OCCURRED:\n{e}\n\n{traceback.format_exc()}", content_type="text/plain")
         messages.error(request, 'Please correct the errors in your profile form.')
     else:
         form = UserProfileForm(instance=profile_obj)
