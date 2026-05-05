@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row mb-4 align-items-center" data-aos="fade-up">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0 text-primary">
+            <i class="icon-dashboard me-2"></i>Study Materials
+        </h2>
+        <p class="text-muted mt-2">Browse subject notes and preparation guides.</p>
+    </div>
+    
+    <!-- Filter & Search Controls -->
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <form method="GET" action="{% url 'study_material_list' %}" class="d-flex justify-content-md-end gap-2">
+            <select name="course_id" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+                <option value="">All Courses</option>
+                {% for c in all_courses %}
+                <option value="{{ c.id }}" {% if selected_course_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <div class="input-group" style="max-width: 250px;">
+                <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ search_query }}">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if course %}
+<div class="alert alert-info mb-4" data-aos="fade-in">
+    Showing study materials for <strong>{{ course.name }}</strong>. 
+    <a href="{% url 'study_material_list' %}" class="alert-link text-decoration-none">Clear filter</a>
+</div>
+{% elif search_query %}
+<div class="alert alert-info mb-4" data-aos="fade-in">
+    Search results for "<strong>{{ search_query }}</strong>". 
+    <a href="{% url 'study_material_list' %}" class="alert-link text-decoration-none">Clear search</a>
+</div>
+{% endif %}
+
+<div class="row g-4">
+    {% for material in materials %}
+    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|default:1 }}00">
+        <div class="card h-100 shadow-sm border-0 hover-lift">
+            <div class="card-body">
+                <span class="badge bg-secondary mb-2">{{ material.course.name }}</span>
+                <h5 class="card-title fw-bold">{{ material.title }}</h5>
+                <p class="card-text text-muted small">Updated: {{ material.updated_at|date:"M d, Y" }}</p>
+            </div>
+            <div class="card-footer bg-white border-0 pt-0">
+                <a href="{% url 'study_material_detail' material.id %}" class="btn btn-primary w-100 btn-sm">Read Material</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="text-muted mb-3">
+            <i class="icon-tests" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="text-muted">No study materials found</h4>
+        <p>Try adjusting your search or filter criteria.</p>
+        <a href="{% url 'study_material_list' %}" class="btn btn-outline-primary mt-2">View All Materials</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

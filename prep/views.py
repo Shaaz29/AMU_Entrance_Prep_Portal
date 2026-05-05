@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.utils.http import url_has_allowed_host_and_scheme
 import logging
 
-from .models import MockTest, Question, Result, Course, UserProfile
+from .models import MockTest, Question, Result, Course, UserProfile, StudyMaterial
 from .utils import import_questions
 from .forms import UserProfileForm
 
@@ -572,3 +572,43 @@ def past_result(request, result_id):
     context.update(result.performance_data)
 
     return render(request, 'result.html', context)
+
+
+# ================= STUDY MATERIAL =================
+def study_material_list(request):
+    selected_course_id = (request.GET.get('course_id') or '').strip()
+    search_query = (request.GET.get('q') or '').strip()
+    
+    materials = StudyMaterial.objects.select_related('course').all()
+    selected_course = None
+    all_courses = Course.objects.all().order_by('name')
+
+    if selected_course_id.isdigit():
+        selected_course = Course.objects.filter(id=int(selected_course_id)).first()
+        if selected_course:
+            materials = materials.filter(course=selected_course)
+
+    if search_query:
+        materials = materials.filter(title__icontains=search_query)
+
+    context = {
+        'materials': materials,
+        'course': selected_course,
+        'search_query': search_query,
+        'selected_course_id': selected_course_id,
+        'all_courses': all_courses,
+    }
+    return render(request, 'study_material_list.html', context)
+
+
+def study_material_detail(request, pk):
+    material = get_object_or_404(StudyMaterial, pk=pk)
+    
+    # Optional: fetch other materials in the same course for a sidebar
+    related_materials = StudyMaterial.objects.filter(course=material.course).exclude(pk=pk)[:5]
+    
+    context = {
+        'material': material,
+        'related_materials': related_materials,
+    }
+    return render(request, 'study_material_detail.html', context)

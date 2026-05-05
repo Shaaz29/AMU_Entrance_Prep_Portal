@@ -36,6 +36,9 @@ urlpatterns = [
     path('result/<int:test_id>/', views.result, name='result'),
     path('past-result/<int:result_id>/', views.past_result, name='past_result'),
 
+    # ================= STUDY MATERIALS =================
+    path('study-materials/', views.study_material_list, name='study_material_list'),
+    path('study-materials/<int:pk>/', views.study_material_detail, name='study_material_detail'),
 
     # ================= ADMIN QUESTION UPLOAD =================
     path('upload-questions/', views.upload_questions, name='upload_questions'),

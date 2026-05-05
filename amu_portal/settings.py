@@ -31,6 +31,9 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
 
+    # Rich Text Editor
+    'ckeditor',
+
     # For bulk import/export in admin
     'import_export',
 
@@ -171,3 +174,19 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+# ================= CKEDITOR CONFIGURATION =================
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source'],
+            ['Format', 'Font', 'FontSize', 'TextColor', 'BGColor']
+        ],
+        'height': 300,
+        'width': '100%',
+    }
+}
