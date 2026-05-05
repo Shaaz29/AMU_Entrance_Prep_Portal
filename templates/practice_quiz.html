@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8" data-aos="fade-up">
+        
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+            <a href="{% url 'study_material_detail' material.id %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="icon-dashboard me-1"></i> Back to Reading
+            </a>
+            <span class="badge bg-primary px-3 py-2 rounded-pill">Topic: {{ material.title }}</span>
+        </div>
+
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">Practice Quiz</h2>
+            <p class="text-muted">Test your knowledge immediately. Select an answer to see if you are correct!</p>
+        </div>
+
+        {% for q in questions %}
+        <div class="card shadow-sm border-0 mb-4 practice-question-card" id="qcard-{{ q.id }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter|default:1 }}00">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4">
+                    <span class="text-primary me-2">Q{{ forloop.counter }}.</span> {{ q.text }}
+                </h5>
+                
+                <div class="d-grid gap-3 options-container" id="options-{{ q.id }}">
+                    {% if q.option_a %}
+                    <button class="btn btn-outline-primary text-start p-3 option-btn" data-qid="{{ q.id }}" data-val="A" data-correct="{{ q.correct_answer }}">
+                        <strong>A.</strong> {{ q.option_a }}
+                    </button>
+                    {% endif %}
+                    
+                    {% if q.option_b %}
+                    <button class="btn btn-outline-primary text-start p-3 option-btn" data-qid="{{ q.id }}" data-val="B" data-correct="{{ q.correct_answer }}">
+                        <strong>B.</strong> {{ q.option_b }}
+                    </button>
+                    {% endif %}
+                    
+                    {% if q.option_c %}
+                    <button class="btn btn-outline-primary text-start p-3 option-btn" data-qid="{{ q.id }}" data-val="C" data-correct="{{ q.correct_answer }}">
+                        <strong>C.</strong> {{ q.option_c }}
+                    </button>
+                    {% endif %}
+                    
+                    {% if q.option_d %}
+                    <button class="btn btn-outline-primary text-start p-3 option-btn" data-qid="{{ q.id }}" data-val="D" data-correct="{{ q.correct_answer }}">
+                        <strong>D.</strong> {{ q.option_d }}
+                    </button>
+                    {% endif %}
+                </div>
+
+                <!-- Feedback Area (Hidden initially) -->
+                <div class="mt-4 p-3 rounded feedback-area d-none" id="feedback-{{ q.id }}">
+                    <div class="d-flex align-items-center mb-2 feedback-header">
+                        <i class="fs-4 me-2 feedback-icon"></i>
+                        <h5 class="mb-0 fw-bold feedback-title"></h5>
+                    </div>
+                    {% if q.explanation %}
+                    <p class="mb-0 text-dark mt-2"><strong>Explanation:</strong> {{ q.explanation }}</p>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div class="text-center mt-5 mb-5" data-aos="fade-up">
+            <h4 class="fw-bold text-dark mb-3">Finished?</h4>
+            <a href="{% url 'study_material_detail' material.id %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm hover-lift">
+                <i class="icon-dashboard me-2"></i> Return to Study Material
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const optionBtns = document.querySelectorAll('.option-btn');
+    
+    optionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const qid = this.getAttribute('data-qid');
+            const selectedVal = this.getAttribute('data-val');
+            const correctVal = this.getAttribute('data-correct');
+            const container = document.getElementById(`options-${qid}`);
+            const feedbackArea = document.getElementById(`feedback-${qid}`);
+            const feedbackIcon = feedbackArea.querySelector('.feedback-icon');
+            const feedbackTitle = feedbackArea.querySelector('.feedback-title');
+            
+            // Disable all buttons in this question container
+            const allBtns = container.querySelectorAll('.option-btn');
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('btn-outline-primary', 'btn-primary');
+                b.classList.add('btn-light', 'text-muted', 'border'); // Neutral style
+            });
+            
+            const isCorrect = (selectedVal === correctVal);
+            
+            // Highlight the selected option
+            if (isCorrect) {
+                this.classList.remove('btn-light', 'text-muted');
+                this.classList.add('btn-success', 'text-white'); // Green for correct
+                
+                feedbackArea.classList.remove('d-none', 'bg-danger-subtle');
+                feedbackArea.classList.add('bg-success-subtle');
+                feedbackIcon.className = "fs-4 me-2 feedback-icon bi bi-check-circle-fill text-success";
+                // Assuming you use bootstrap icons, or fallback text:
+                feedbackIcon.innerHTML = "✅"; 
+                feedbackTitle.textContent = "Correct!";
+                feedbackTitle.classList.add('text-success');
+                
+            } else {
+                this.classList.remove('btn-light', 'text-muted');
+                this.classList.add('btn-danger', 'text-white'); // Red for incorrect
+                
+                // Highlight the actual correct option too
+                const correctBtn = container.querySelector(`.option-btn[data-val="${correctVal}"]`);
+                if(correctBtn) {
+                    correctBtn.classList.remove('btn-light', 'text-muted');
+                    correctBtn.classList.add('btn-outline-success', 'border-2', 'fw-bold');
+                }
+                
+                feedbackArea.classList.remove('d-none', 'bg-success-subtle');
+                feedbackArea.classList.add('bg-danger-subtle');
+                feedbackIcon.className = "fs-4 me-2 feedback-icon bi bi-x-circle-fill text-danger";
+                feedbackIcon.innerHTML = "❌";
+                feedbackTitle.textContent = "Incorrect. The correct answer was " + correctVal + ".";
+                feedbackTitle.classList.add('text-danger');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.practice-question-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.option-btn {
+    transition: all 0.2s ease;
+}
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+}
+.bg-danger-subtle {
+    background-color: #f8d7da !important;
+}
+</style>
+{% endblock %}

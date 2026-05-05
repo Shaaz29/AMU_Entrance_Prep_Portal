@@ -606,9 +606,27 @@ def study_material_detail(request, pk):
     
     # Optional: fetch other materials in the same course for a sidebar
     related_materials = StudyMaterial.objects.filter(course=material.course).exclude(pk=pk)[:5]
+    has_practice_quiz = material.practice_questions.exists()
     
     context = {
         'material': material,
         'related_materials': related_materials,
+        'has_practice_quiz': has_practice_quiz,
     }
     return render(request, 'study_material_detail.html', context)
+
+
+@login_required
+def practice_quiz_view(request, material_id):
+    material = get_object_or_404(StudyMaterial, pk=material_id)
+    questions = material.practice_questions.all()
+    
+    if not questions.exists():
+        messages.info(request, "There are no practice questions available for this topic yet.")
+        return redirect('study_material_detail', pk=material_id)
+        
+    context = {
+        'material': material,
+        'questions': questions,
+    }
+    return render(request, 'practice_quiz.html', context)

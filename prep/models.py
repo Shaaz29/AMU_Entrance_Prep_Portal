@@ -29,6 +29,23 @@ class StudyMaterial(models.Model):
         return f"{self.title} - {self.course.name}"
 
 
+class PracticeQuestion(models.Model):
+    study_material = models.ForeignKey(StudyMaterial, on_delete=models.CASCADE, related_name='practice_questions')
+    text = models.TextField()
+    
+    # MCQ Options
+    option_a = models.CharField(max_length=200, blank=True)
+    option_b = models.CharField(max_length=200, blank=True)
+    option_c = models.CharField(max_length=200, blank=True)
+    option_d = models.CharField(max_length=200, blank=True)
+    
+    correct_answer = models.CharField(max_length=100)
+    explanation = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Practice Q: {self.text[:50]}"
+
+
 class MockTest(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='mocktests')
     year = models.IntegerField()

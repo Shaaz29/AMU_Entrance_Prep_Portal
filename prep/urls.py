@@ -39,6 +39,7 @@ urlpatterns = [
     # ================= STUDY MATERIALS =================
     path('study-materials/', views.study_material_list, name='study_material_list'),
     path('study-materials/<int:pk>/', views.study_material_detail, name='study_material_detail'),
+    path('study-materials/<int:material_id>/practice/', views.practice_quiz_view, name='practice_quiz_view'),
 
     # ================= ADMIN QUESTION UPLOAD =================
     path('upload-questions/', views.upload_questions, name='upload_questions'),
