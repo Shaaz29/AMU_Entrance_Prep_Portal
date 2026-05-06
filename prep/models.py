@@ -17,6 +17,7 @@ class Course(models.Model):
 
 class StudyMaterial(models.Model):
     title = models.CharField(max_length=200)
+    chapter_name = models.CharField(max_length=200, blank=True, null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='study_materials')
     content = RichTextField()
     created_at = models.DateTimeField(auto_now_add=True)

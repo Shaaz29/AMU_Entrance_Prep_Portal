@@ -54,7 +54,7 @@ class PracticeQuestionInline(admin.StackedInline):
 
 @admin.register(StudyMaterial)
 class StudyMaterialAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "course", "created_at", "updated_at")
+    list_display = ("id", "title", "chapter_name", "course", "created_at", "updated_at")
     list_filter = ("course", "created_at")
-    search_fields = ("title", "content")
+    search_fields = ("title", "chapter_name", "content")
     inlines = [PracticeQuestionInline]
