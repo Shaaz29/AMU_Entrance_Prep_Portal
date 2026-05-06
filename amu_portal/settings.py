@@ -101,7 +101,7 @@ else:
 DATABASES = {
     'default': dj_database_url.config(
         default=default_db,
-        conn_max_age=600,
+        conn_max_age=0,
     )
 }
 
