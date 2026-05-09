@@ -21,6 +21,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # ================= INSTALLED APPS =================
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -190,5 +191,35 @@ CKEDITOR_CONFIGS = {
         ],
         'height': 300,
         'width': '100%',
+    }
+}
+
+# ================= JAZZMIN ADMIN CONFIGURATION =================
+JAZZMIN_SETTINGS = {
+    "site_title": "Taalimi Safar Admin",
+    "site_header": "Taalimi Safar",
+    "site_brand": "Taalimi Safar",
+    "welcome_sign": "Welcome to Taalimi Safar Admin",
+    "copyright": "Taalimi Safar",
+    "show_ui_builder": True,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar": "navbar-dark",
+    "theme": "flatly",
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": True,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme_color": "default",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success"
     }
 }

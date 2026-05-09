@@ -26,3 +26,4 @@ tablib==3.9.0
 tzdata==2025.3
 urllib3==2.6.3
 whitenoise==6.11.0
+django-jazzmin==3.0.4
