@@ -470,9 +470,8 @@ def forgot_password(request):
                         {spaced_code}
                     </div>
                     <p style="color: #888888; font-size: 14px; margin-bottom: 30px;">
-                        This OTP will expire in <strong>10 minutes</strong>.
+                        This OTP will expire in <strong>5 minutes</strong>.
                     </p>
-                    <a href="#" style="display: inline-block; background-color: #2d6a4f; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-weight: bold; font-size: 16px;">Return to Portal</a>
                 </div>
             </div>
             """
