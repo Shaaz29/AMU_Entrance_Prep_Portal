@@ -12,11 +12,18 @@
     
     <!-- Filter & Search Controls -->
     <div class="col-md-6 text-md-end mt-3 mt-md-0">
-        <form method="GET" action="{% url 'study_material_list' %}" class="d-flex justify-content-md-end gap-2">
+        <form method="GET" action="{% url 'study_material_list' %}" class="d-flex flex-wrap justify-content-md-end gap-2">
             <select name="course_id" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
                 <option value="">All Courses</option>
                 {% for c in all_courses %}
                 <option value="{{ c.id }}" {% if selected_course_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="chapter_name" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+                <option value="">All Chapters</option>
+                {% for chapter in all_chapters %}
+                <option value="{{ chapter }}" {% if selected_chapter_name == chapter %}selected{% endif %}>{{ chapter }}</option>
                 {% endfor %}
             </select>
             
@@ -38,6 +45,11 @@
     Search results for "<strong>{{ search_query }}</strong>". 
     <a href="{% url 'study_material_list' %}" class="alert-link text-decoration-none">Clear search</a>
 </div>
+{% elif selected_chapter_name %}
+<div class="alert alert-info mb-4" data-aos="fade-in">
+    Showing study materials for chapter: <strong>{{ selected_chapter_name }}</strong>. 
+    <a href="{% url 'study_material_list' %}" class="alert-link text-decoration-none">Clear filter</a>
+</div>
 {% endif %}
 
 <div class="row g-4">
@@ -46,6 +58,9 @@
         <div class="card h-100 shadow-sm border-0 hover-lift">
             <div class="card-body">
                 <span class="badge bg-secondary mb-2">{{ material.course.name }}</span>
+                {% if material.chapter_name %}
+                <p class="text-primary fw-bold small text-uppercase mb-1"><i class="icon-book me-1"></i>{{ material.chapter_name }}</p>
+                {% endif %}
                 <h5 class="card-title fw-bold">{{ material.title }}</h5>
                 <p class="card-text text-muted small">Updated: {{ material.updated_at|date:"M d, Y" }}</p>
             </div>

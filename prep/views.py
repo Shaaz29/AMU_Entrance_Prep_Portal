@@ -608,18 +608,27 @@ def past_result(request, result_id):
 def study_material_list(request):
     selected_course_id = (request.GET.get('course_id') or '').strip()
     search_query = (request.GET.get('q') or '').strip()
+    selected_chapter_name = request.GET.get('chapter_name', '').strip()
     
     materials = StudyMaterial.objects.select_related('course').all()
     selected_course = None
     all_courses = Course.objects.all().order_by('name')
+    
+    # Get list of unique chapter names
+    all_chapters = StudyMaterial.objects.exclude(chapter_name__isnull=True).exclude(chapter_name="").values_list('chapter_name', flat=True).distinct().order_by('chapter_name')
 
     if selected_course_id.isdigit():
         selected_course = Course.objects.filter(id=int(selected_course_id)).first()
         if selected_course:
             materials = materials.filter(course=selected_course)
 
+    if selected_chapter_name:
+        materials = materials.filter(chapter_name__iexact=selected_chapter_name)
+
     if search_query:
-        materials = materials.filter(title__icontains=search_query)
+        # Search by title or chapter_name
+        from django.db.models import Q
+        materials = materials.filter(Q(title__icontains=search_query) | Q(chapter_name__icontains=search_query))
 
     context = {
         'materials': materials,
@@ -627,6 +636,8 @@ def study_material_list(request):
         'search_query': search_query,
         'selected_course_id': selected_course_id,
         'all_courses': all_courses,
+        'all_chapters': all_chapters,
+        'selected_chapter_name': selected_chapter_name,
     }
     return render(request, 'study_material_list.html', context)
 

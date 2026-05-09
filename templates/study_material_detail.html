@@ -14,6 +14,9 @@
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4 p-md-5">
                 <span class="badge bg-primary mb-3">{{ material.course.name }}</span>
+                {% if material.chapter_name %}
+                <p class="text-primary fw-bold text-uppercase mb-2"><i class="icon-book me-2"></i>{{ material.chapter_name }}</p>
+                {% endif %}
                 <h1 class="card-title fw-bold text-dark mb-2">{{ material.title }}</h1>
                 <p class="text-muted small mb-4 border-bottom pb-3">
                     Last updated on {{ material.updated_at|date:"F d, Y" }}
