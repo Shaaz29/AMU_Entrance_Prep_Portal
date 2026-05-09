@@ -1,0 +1,73 @@
+/* Custom Admin Styles matching the UI aesthetic from the screenshots */
+
+/* Login Page Styling */
+body.login-page {
+    background-color: #f8f9fa; /* Light background */
+}
+
+.login-box {
+    width: 420px !important;
+}
+
+.login-card-body {
+    border-radius: 15px !important;
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.06) !important;
+    padding: 40px !important;
+    border-top: 4px solid #6f42c1 !important; /* Purple top border */
+}
+
+.login-logo a {
+    font-weight: 800 !important;
+    color: #2c3e50 !important;
+    font-size: 2.2rem !important;
+    text-transform: uppercase;
+}
+
+/* Form inputs */
+.form-control {
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 10px 15px !important;
+}
+
+/* Purple Primary Buttons */
+.btn-primary {
+    background-color: #6f42c1 !important;
+    border-color: #6f42c1 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 10px !important;
+}
+
+.btn-primary:hover {
+    background-color: #5a32a3 !important;
+    border-color: #5a32a3 !important;
+}
+
+/* Green Success Buttons */
+.btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+/* Sidebar Styling */
+.main-sidebar {
+    background-color: #ffffff !important; /* Pure white sidebar */
+    box-shadow: 2px 0px 10px rgba(0,0,0,0.03) !important;
+}
+
+.sidebar-light-purple .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #6f42c1 !important;
+    color: #ffffff !important;
+    border-radius: 5px !important;
+}
+
+/* Navbar styling */
+.main-header {
+    border-bottom: 1px solid #f0f0f0 !important;
+    box-shadow: none !important;
+}
