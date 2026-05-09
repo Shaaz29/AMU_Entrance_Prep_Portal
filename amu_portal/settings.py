@@ -102,9 +102,9 @@ DATABASES = {
     'default': dj_database_url.config(
         default=default_db,
         conn_max_age=0,
-        conn_health_checks=True,
     )
 }
+DATABASES['default']['CONN_HEALTH_CHECKS'] = True
 
 
 # ================= PASSWORD VALIDATION =================

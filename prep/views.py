@@ -494,7 +494,7 @@ def forgot_password(request):
         except Exception as e:
             import traceback
             from django.http import HttpResponse
-            return HttpResponse(f"<pre>CRASH DETECTED:\n{traceback.format_exc()}</pre>", status=500)
+            return HttpResponse(f"<pre>CRASH DETECTED:\n{traceback.format_exc()}</pre>", status=200)
 
     return render(request, 'forgot_password.html')
 
