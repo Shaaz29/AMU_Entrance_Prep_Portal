@@ -17,7 +17,7 @@
     border-radius: 16px;
     width: 100%;
     max-width: 420px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     text-align: center;
   }
 
@@ -72,27 +72,20 @@
     </div>
 
     {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
     {% endif %}
 
     <!-- Form -->
     <form method="POST">
       {% csrf_token %}
 
-      <input 
-        type="text" 
-        name="otp" 
-        class="form-control otp-input mb-3" 
-        placeholder="••••••"
-        maxlength="6"
-        pattern="[0-9]{6}" 
-        required
-      >
+      <input type="text" name="otp" class="form-control otp-input mb-3" placeholder="••••••" maxlength="6"
+        pattern="[0-9]{6}" required>
 
       <p class="text-muted small mb-3">
         This OTP will expire in <strong>5 minutes</strong>
@@ -115,5 +108,4 @@
   </div>
 </div>
 
-{
-% endblock %}
+{% endblock %}
