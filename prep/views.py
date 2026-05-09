@@ -451,10 +451,36 @@ def forgot_password(request):
         code = str(random.randint(100000, 999999))
         PasswordResetOTP.objects.create(user=user, otp=code)
 
+        spaced_code = " ".join(code)
+        html_content = f"""
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f5f7; padding: 40px 20px; text-align: center;">
+            <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; padding: 40px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div style="font-size: 24px; font-weight: bold; color: #2d6a4f; margin-bottom: 20px;">
+                    🎓 AMU Entrance Portal
+                </div>
+                <div style="font-size: 18px; color: #333333; margin-bottom: 10px;">
+                    Password Reset Request
+                </div>
+                <hr style="border: 0; border-top: 1px solid #eeeeee; margin: 20px 0;">
+                <p style="color: #555555; font-size: 16px; margin-bottom: 20px;">
+                    Use the OTP below to continue:
+                </p>
+                <div style="font-size: 38px; font-weight: bold; letter-spacing: 6px; color: #111111; margin: 30px 0;">
+                    {spaced_code}
+                </div>
+                <p style="color: #888888; font-size: 14px; margin-bottom: 30px;">
+                    This OTP will expire in <strong>10 minutes</strong>.
+                </p>
+                <a href="#" style="display: inline-block; background-color: #2d6a4f; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-weight: bold; font-size: 16px;">Return to Portal</a>
+            </div>
+        </div>
+        """
+
         try:
             send_mail(
-                subject="Your Security Code - AMU Entrance Portal",
+                subject="Verify Your Account - AMU Entrance Portal",
                 message=f"Hello,\n\nA password reset was requested for your account.\n\nYour 6-digit security code is: {code}\n\nThis code will magically self-destruct in precisely 10 minutes.\n\nIf you did not request this, please ignore this email.",
+                html_message=html_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 fail_silently=False,

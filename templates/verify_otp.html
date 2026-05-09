@@ -2,44 +2,118 @@
 
 {% block content %}
 
-<div class="row justify-content-center mt-5">
-  <div class="col-md-5">
+<style>
+  .otp-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f7fa;
+  }
 
-    <div class="card shadow p-4" style="border-radius: 12px;">
+  .otp-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    text-align: center;
+  }
 
-      <h2 class="text-center mb-3">Verify OTP</h2>
-      <p class="text-muted text-center mb-4">We sent a 6-digit verification code to <strong>{{ email }}</strong>. It will expire in exactly 10 minutes.</p>
+  .otp-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
+  .otp-subtext {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
 
-      <form method="POST">
-        {% csrf_token %}
-        <div class="mb-4">
-          <label class="form-label fw-bold">Enter 6-Digit Code</label>
-          <input type="text" name="otp" class="form-control form-control-lg text-center" placeholder="e.g. 123456" maxlength="6" pattern="[0-9]{6}" required style="letter-spacing: 5px; font-weight: bold; font-size: 1.5rem;">
+  .otp-input {
+    font-size: 32px;
+    letter-spacing: 10px;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .verify-btn {
+    background-color: #2e7d32;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: 0.3s;
+  }
+
+  .verify-btn:hover {
+    background-color: #256628;
+  }
+
+  .resend-link {
+    font-size: 13px;
+    color: #6c757d;
+  }
+</style>
+
+<div class="otp-container">
+  <div class="otp-card">
+
+    <!-- Title -->
+    <div class="otp-title">Verify Your Account</div>
+    <div class="otp-subtext">
+      We sent a 6-digit OTP to <strong>{{ email }}</strong>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+      {% endfor %}
+    {% endif %}
 
-        <div class="d-grid mb-3">
-          <button type="submit" class="btn btn-success btn-lg fw-bold">
-            Verify Identity
-          </button>
-        </div>
-      </form>
+    <!-- Form -->
+    <form method="POST">
+      {% csrf_token %}
 
-      <div class="text-center mt-2">
-        <a href="{% url 'forgot_password' %}" class="text-decoration-none text-muted small">Didn't receive it? Request another code</a>
+      <input 
+        type="text" 
+        name="otp" 
+        class="form-control otp-input mb-3" 
+        placeholder="••••••"
+        maxlength="6"
+        pattern="[0-9]{6}" 
+        required
+      >
+
+      <p class="text-muted small mb-3">
+        This OTP will expire in <strong>5 minutes</strong>
+      </p>
+
+      <div class="d-grid">
+        <button type="submit" class="btn verify-btn text-white">
+          Verify Now
+        </button>
       </div>
+    </form>
 
+    <!-- Resend -->
+    <div class="mt-3">
+      <a href="{% url 'forgot_password' %}" class="resend-link text-decoration-none">
+        Didn’t receive OTP? Request again
+      </a>
     </div>
 
   </div>
 </div>
 
-{% endblock %}
+{
+% endblock %}
