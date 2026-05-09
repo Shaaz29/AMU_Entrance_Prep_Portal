@@ -196,11 +196,11 @@ CKEDITOR_CONFIGS = {
 
 # ================= JAZZMIN ADMIN CONFIGURATION =================
 JAZZMIN_SETTINGS = {
-    "site_title": "Taalimi Safar Admin",
-    "site_header": "Taalimi Safar",
-    "site_brand": "Taalimi Safar",
-    "welcome_sign": "Welcome to Taalimi Safar Admin",
-    "copyright": "Taalimi Safar",
+    "site_title": "AMU Entrance Prep Portal Admin",
+    "site_header": "AMU Entrance Prep Portal",
+    "site_brand": "AMU Entrance Prep Portal",
+    "welcome_sign": "Welcome to AMU Entrance Prep Portal Admin",
+    "copyright": "AMU Entrance Prep Portal",
     "show_ui_builder": True,
 }
 
