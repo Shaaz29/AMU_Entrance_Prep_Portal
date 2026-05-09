@@ -199,27 +199,29 @@ JAZZMIN_SETTINGS = {
     "site_title": "AMU Entrance Prep Portal Admin",
     "site_header": "AMU Entrance Prep Portal",
     "site_brand": "AMU Entrance Prep Portal",
+    "site_logo": "",
     "welcome_sign": "Welcome to AMU Entrance Prep Portal Admin",
     "copyright": "AMU Entrance Prep Portal",
-    "show_ui_builder": True,
+    "show_ui_builder": False,
+    "custom_css": "css/admin_custom.css",
 }
 
 JAZZMIN_UI_TWEAKS = {
-    "navbar": "navbar-dark",
-    "theme": "flatly",
-    "sidebar": "sidebar-dark-primary",
+    "navbar": "navbar-white navbar-light",
+    "theme": "default",
+    "sidebar": "sidebar-light-purple",
     "sidebar_nav_child_indent": True,
-    "sidebar_nav_compact_style": True,
+    "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-    "theme_color": "default",
+    "theme_color": "purple",
     "dark_mode_theme": None,
     "button_classes": {
-        "primary": "btn-outline-primary",
-        "secondary": "btn-outline-secondary",
-        "info": "btn-outline-info",
-        "warning": "btn-outline-warning",
-        "danger": "btn-outline-danger",
-        "success": "btn-outline-success"
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
     }
 }
