@@ -182,23 +182,6 @@ def start_test(request, test_id):
     return render(request, 'test_rules.html', {'test': test})
 
 
-def get_alternate_questions_for_review(review_items, course):
-    alternate_questions = []
-    topics_seen = set()
-    for item in review_items:
-        if item['review_status'] in ['incorrect', 'not_attempted'] and item['question'].get('youtube_link'):
-            topic = item['question'].get('topic')
-            if topic and topic not in topics_seen:
-                # Find an alternate question for this topic
-                alt_q = Question.objects.filter(mocktest__course=course, topic=topic).exclude(text=item['question']['text']).first()
-                if alt_q:
-                    alternate_questions.append(alt_q)
-                    topics_seen.add(topic)
-            if len(alternate_questions) >= 5:
-                break
-    return alternate_questions
-
-
 # ================= SUBMIT TEST =================
 @login_required
 def submit_test(request, test_id):
@@ -253,7 +236,8 @@ def submit_test(request, test_id):
                 'explanation_image_urls_list': q.explanation_image_urls_list,
                 'explanation_image': bool(q.explanation_image),
                 'youtube_link': q.youtube_link,
-                'topic': q.topic,
+                'alternate_image_urls_list': q.alternate_image_urls_list,
+                'alternate_correct_answer': q.alternate_correct_answer,
             },
             'user_answer': user_answer_display,
             'correct_answer': correct_answer_display,
@@ -306,8 +290,6 @@ def submit_test(request, test_id):
     if rules_session_key in request.session:
         del request.session[rules_session_key]
 
-    alternate_questions = get_alternate_questions_for_review(review_items, test.course)
-
     return render(request, 'result.html', {
         'test': test,
         'score': score,
@@ -323,7 +305,6 @@ def submit_test(request, test_id):
         'total_attempts': total_attempts,
         'rank_percentile': rank_percentile,
         'performance_remark': performance_remark,
-        'alternate_questions': alternate_questions,
     })
 
 
@@ -609,9 +590,6 @@ def past_result(request, result_id):
     else:
         performance_remark = "This score shows you need a thorough revision of the basics. Start practicing more intensely for future improvement."
 
-    review_items = result.performance_data.get('review_items', [])
-    alternate_questions = get_alternate_questions_for_review(review_items, test.course)
-
     context = {
         'test': test,
         'score': result.score,
@@ -621,7 +599,6 @@ def past_result(request, result_id):
         'performance_remark': performance_remark,
         'historical_review': True,
         'date_attempted': result.date,
-        'alternate_questions': alternate_questions,
     }
     
     # Unpack all JSON structural keys seamlessly into Django Template context

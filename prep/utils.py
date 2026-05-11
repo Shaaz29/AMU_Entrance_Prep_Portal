@@ -84,7 +84,7 @@ def import_questions(file, mocktest_id=None):
             q_data = {
                 'mocktest': target_mocktest,
                 'type': 'MCQ',
-                'text': _clean_cell(row.get('question')),
+                'text': _clean_cell(row.get('question') or row.get('text')),
                 'option_a': _clean_cell(row.get('option_a')),
                 'option_b': _clean_cell(row.get('option_b')),
                 'option_c': _clean_cell(row.get('option_c')),
@@ -92,9 +92,10 @@ def import_questions(file, mocktest_id=None):
                 'correct_answer': correct_answer,
                 'explanation': _clean_cell(row.get('explanation')),
                 'youtube_link': _clean_cell(row.get('youtube_link')) if 'youtube_link' in row else None,
-                'topic': _clean_cell(row.get('topic')) if 'topic' in row else None,
+                'alternate_correct_answer': _clean_cell(row.get('alternate_correct_answer')).upper() if 'alternate_correct_answer' in row else None,
                 'image_pieces': [],
-                'explanation_image_pieces': []
+                'explanation_image_pieces': [],
+                'alternate_image_pieces': []
             }
             
             # Inner helper to process images for a specific cell string
@@ -127,6 +128,7 @@ def import_questions(file, mocktest_id=None):
             # Schedule main images and explanation images
             schedule_images(_clean_cell(row.get('image')), 'image_pieces')
             schedule_images(_clean_cell(row.get('explanation_image')), 'explanation_image_pieces')
+            schedule_images(_clean_cell(row.get('alternate_image')), 'alternate_image_pieces')
 
             questions_to_create.append(q_data)
 
@@ -162,9 +164,10 @@ def import_questions(file, mocktest_id=None):
                     correct_answer=q_data['correct_answer'],
                     explanation=q_data['explanation'],
                     youtube_link=q_data['youtube_link'],
-                    topic=q_data['topic'],
+                    alternate_correct_answer=q_data['alternate_correct_answer'],
                     image=resolve_pieces(q_data['image_pieces']),
                     explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
+                    alternate_image=resolve_pieces(q_data['alternate_image_pieces']),
                 )
             # If the transaction block succeeds completely, count it!
             created_count += 1
