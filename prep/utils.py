@@ -91,6 +91,8 @@ def import_questions(file, mocktest_id=None):
                 'option_d': _clean_cell(row.get('option_d')),
                 'correct_answer': correct_answer,
                 'explanation': _clean_cell(row.get('explanation')),
+                'youtube_link': _clean_cell(row.get('youtube_link')) if 'youtube_link' in row else None,
+                'topic': _clean_cell(row.get('topic')) if 'topic' in row else None,
                 'image_pieces': [],
                 'explanation_image_pieces': []
             }
@@ -159,6 +161,8 @@ def import_questions(file, mocktest_id=None):
                     option_d=q_data['option_d'],
                     correct_answer=q_data['correct_answer'],
                     explanation=q_data['explanation'],
+                    youtube_link=q_data['youtube_link'],
+                    topic=q_data['topic'],
                     image=resolve_pieces(q_data['image_pieces']),
                     explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
                 )

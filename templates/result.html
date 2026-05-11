@@ -181,12 +181,58 @@
 
 						</div>
 
+                        {% if item.question.youtube_link %}
+                        <div class="mt-4 p-3 bg-light rounded text-center border">
+                            <h6 class="text-danger fw-bold"><i class="bi bi-youtube"></i> Video Explanation</h6>
+                            <p class="text-muted small">Watch this video to understand the concepts for this question.</p>
+                            <a href="{{ item.question.youtube_link }}" target="_blank" class="btn btn-danger px-4 rounded-pill shadow-sm">
+                                Watch on YouTube
+                            </a>
+                        </div>
+                        {% endif %}
+
 					</div>
 				</div>
 			{% endfor %}
 			<p class="text-muted d-none mt-3" id="no-filter-message">No questions available in this filter.</p>
 		</div>
 	{% endif %}
+
+    {% if alternate_questions %}
+    <div class="card mt-5 border-success shadow-sm mb-5">
+        <div class="card-header bg-success text-white p-3">
+            <h4 class="mb-0"><i class="bi bi-journal-arrow-up"></i> Remediation: Try Alternate Questions</h4>
+        </div>
+        <div class="card-body p-4">
+            <p class="text-muted">Based on the videos you watched for your incorrect answers, here are some alternate questions on the exact same topics for you to practice immediately:</p>
+            
+            {% for alt_q in alternate_questions %}
+            <div class="border rounded p-4 mb-3 bg-light">
+                <span class="badge bg-secondary mb-3 fs-6">{{ alt_q.topic }}</span>
+                <p class="mb-3 fw-bold fs-5">{{ alt_q.text }}</p>
+                
+                {% if alt_q.image %}
+                <div class="mb-3">
+                    <img src="{{ alt_q.image }}" class="img-fluid rounded" style="max-height: 200px;" alt="Question Diagram">
+                </div>
+                {% endif %}
+
+                <ul class="list-unstyled mb-0 fs-6">
+                    <li class="mb-2"><strong>A.</strong> {{ alt_q.option_a }}</li>
+                    <li class="mb-2"><strong>B.</strong> {{ alt_q.option_b }}</li>
+                    <li class="mb-2"><strong>C.</strong> {{ alt_q.option_c }}</li>
+                    <li class="mb-2"><strong>D.</strong> {{ alt_q.option_d }}</li>
+                </ul>
+                
+                <button class="btn btn-outline-success mt-3" onclick="alert('The correct answer is: {{ alt_q.correct_answer }}')">
+                    Show Correct Answer
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
 </div>
 
 <script>

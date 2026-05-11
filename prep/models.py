@@ -82,6 +82,9 @@ class Question(models.Model):
     # Explanation image path or comma-separated image paths
     explanation_image = models.TextField(blank=True, null=True)
 
+    youtube_link = models.URLField(blank=True, null=True)
+    topic = models.CharField(max_length=200, blank=True, null=True)
+
     @property
     def explanation_image_urls_list(self):
         raw = (self.explanation_image or "").strip()
