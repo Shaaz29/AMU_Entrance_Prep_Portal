@@ -197,10 +197,20 @@
                                     <img src="{{ alt_img }}" class="img-fluid rounded border mb-2" alt="Alternate Question" style="max-height: 300px;">
                                     {% endfor %}
                                 </div>
-                                {% if item.question.alternate_correct_answer %}
-                                <button class="btn btn-outline-success mt-2 rounded-pill" onclick="alert('The correct answer is: {{ item.question.alternate_correct_answer }}')">
+                                {% if item.question.alternate_correct_answer or item.question.alternate_explanation_image_urls_list %}
+                                <button class="btn btn-outline-success mt-2 rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#altAns{{ item.number }}" aria-expanded="false" aria-controls="altAns{{ item.number }}">
                                     Show Correct Answer
                                 </button>
+                                <div class="collapse mt-3" id="altAns{{ item.number }}">
+                                    <div class="card card-body border-success bg-light text-start">
+                                        {% if item.question.alternate_correct_answer %}
+                                        <p class="mb-2 text-success fw-bold">Correct Answer: {{ item.question.alternate_correct_answer }}</p>
+                                        {% endif %}
+                                        {% for exp_img in item.question.alternate_explanation_image_urls_list %}
+                                        <img src="{{ exp_img }}" class="img-fluid rounded border mt-2" alt="Alternate Explanation" style="max-height: 300px;">
+                                        {% endfor %}
+                                    </div>
+                                </div>
                                 {% endif %}
                             </div>
                             {% endif %}

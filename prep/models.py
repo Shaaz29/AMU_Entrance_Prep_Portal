@@ -85,6 +85,7 @@ class Question(models.Model):
     youtube_link = models.URLField(blank=True, null=True)
     alternate_image = models.TextField(blank=True, null=True)
     alternate_correct_answer = models.CharField(max_length=100, blank=True, null=True)
+    alternate_explanation_image = models.TextField(blank=True, null=True)
     @property
     def explanation_image_urls_list(self):
         raw = (self.explanation_image or "").strip()
@@ -139,6 +140,27 @@ class Question(models.Model):
     @property
     def alternate_image_urls_list(self):
         raw = (self.alternate_image or "").strip()
+        if not raw:
+            return []
+            
+        urls = []
+        for img in raw.split(','):
+            img = img.strip()
+            if not img:
+                continue
+            if img.startswith(("http://", "https://", "/")):
+                urls.append(img)
+            elif img.startswith("static/"):
+                urls.append(f"{settings.STATIC_URL}{img[len('static/'):]}")
+            elif img.startswith("media/"):
+                urls.append(f"{settings.MEDIA_URL}{img[len('media/'):]}")
+            else:
+                urls.append(f"{settings.STATIC_URL}{img}")
+        return urls
+
+    @property
+    def alternate_explanation_image_urls_list(self):
+        raw = (self.alternate_explanation_image or "").strip()
         if not raw:
             return []
             

@@ -95,7 +95,8 @@ def import_questions(file, mocktest_id=None):
                 'alternate_correct_answer': _clean_cell(row.get('alternate_correct_answer')).upper() if 'alternate_correct_answer' in row else None,
                 'image_pieces': [],
                 'explanation_image_pieces': [],
-                'alternate_image_pieces': []
+                'alternate_image_pieces': [],
+                'alternate_explanation_image_pieces': []
             }
             
             # Inner helper to process images for a specific cell string
@@ -129,6 +130,7 @@ def import_questions(file, mocktest_id=None):
             schedule_images(_clean_cell(row.get('image')), 'image_pieces')
             schedule_images(_clean_cell(row.get('explanation_image')), 'explanation_image_pieces')
             schedule_images(_clean_cell(row.get('alternate_image')), 'alternate_image_pieces')
+            schedule_images(_clean_cell(row.get('alternate_explanation_image')), 'alternate_explanation_image_pieces')
 
             questions_to_create.append(q_data)
 
@@ -168,6 +170,7 @@ def import_questions(file, mocktest_id=None):
                     image=resolve_pieces(q_data['image_pieces']),
                     explanation_image=resolve_pieces(q_data['explanation_image_pieces']),
                     alternate_image=resolve_pieces(q_data['alternate_image_pieces']),
+                    alternate_explanation_image=resolve_pieces(q_data['alternate_explanation_image_pieces']),
                 )
             # If the transaction block succeeds completely, count it!
             created_count += 1

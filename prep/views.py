@@ -238,6 +238,7 @@ def submit_test(request, test_id):
                 'youtube_link': q.youtube_link,
                 'alternate_image_urls_list': q.alternate_image_urls_list,
                 'alternate_correct_answer': q.alternate_correct_answer,
+                'alternate_explanation_image_urls_list': q.alternate_explanation_image_urls_list,
             },
             'user_answer': user_answer_display,
             'correct_answer': correct_answer_display,
