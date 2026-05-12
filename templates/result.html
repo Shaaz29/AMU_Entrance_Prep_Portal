@@ -197,6 +197,28 @@
                                     <img src="{{ alt_img }}" class="img-fluid rounded border mb-2" alt="Alternate Question" style="max-height: 300px;">
                                     {% endfor %}
                                 </div>
+                                
+                                <div class="mt-3 mb-3">
+                                    <div class="d-flex justify-content-center gap-4">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input border-secondary" type="radio" name="alt_q_{{ item.number }}" id="alt_a_{{ item.number }}" value="A" style="transform: scale(1.2);">
+                                            <label class="form-check-label fw-bold ms-1" for="alt_a_{{ item.number }}">A</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input border-secondary" type="radio" name="alt_q_{{ item.number }}" id="alt_b_{{ item.number }}" value="B" style="transform: scale(1.2);">
+                                            <label class="form-check-label fw-bold ms-1" for="alt_b_{{ item.number }}">B</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input border-secondary" type="radio" name="alt_q_{{ item.number }}" id="alt_c_{{ item.number }}" value="C" style="transform: scale(1.2);">
+                                            <label class="form-check-label fw-bold ms-1" for="alt_c_{{ item.number }}">C</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input border-secondary" type="radio" name="alt_q_{{ item.number }}" id="alt_d_{{ item.number }}" value="D" style="transform: scale(1.2);">
+                                            <label class="form-check-label fw-bold ms-1" for="alt_d_{{ item.number }}">D</label>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {% if item.question.alternate_correct_answer or item.question.alternate_explanation_image_urls_list %}
                                 <button class="btn btn-outline-success mt-2 rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#altAns{{ item.number }}" aria-expanded="false" aria-controls="altAns{{ item.number }}">
                                     Show Correct Answer
