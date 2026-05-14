@@ -1,7 +1,7 @@
 # AMU Entrance Portal - Product Requirements Document (PRD)
 
-Version: 4.0  
-Date: May 10, 2026  
+Version: 4.1  
+Date: May 12, 2026  
 Prepared from the latest codebase optimizations of `AMU_ Entrance_Portal`
 
 ## 1. Product Overview
@@ -11,15 +11,15 @@ The product is built on Django and Bootstrap, heavily utilizing modern CSS (Midn
 
 ## 2. Vision and Goals
 ### Vision
-Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic, university-branded interface, study categorized rich-text materials, and improve through measurable performance insights and high-quality visual explanations.
+Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic, university-branded interface, study categorized rich-text materials, and improve through measurable performance insights and highly interactive visual remediation.
 
 ### Primary Goals
 1. Provide exam-like timed mock tests per AMU course/year with dynamic scaling palettes.
 2. Deliver immediate score feedback with per-question review and scalable multi-page visual explanations.
-3. Offer an extremely fast, concurrent admin workflow for massive question-bank and multi-image ZIP uploads.
-4. Scale media processing flawlessly using Cloudinary CDNs without breaking local storage constraints.
-5. Provide a flawless aesthetic experience using modern web UI paradigms (Glassmorphism, seamless layout anchors).
-6. Facilitate comprehensive self-paced learning via rich-text "Study Materials" mapped to specific chapters.
+3. Offer targeted Video Remediation and Alternate Practice questions specifically for areas of student weakness.
+4. Offer an extremely fast, concurrent admin workflow for massive question-bank and multi-image ZIP uploads.
+5. Scale media processing flawlessly using Cloudinary CDNs without breaking local storage constraints.
+6. Provide a flawless aesthetic experience using modern web UI paradigms (Glassmorphism, seamless layout anchors).
 
 ### Non-Goals (Current Version)
 1. Multi-language learning experience.
@@ -34,8 +34,9 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 ### 4.1 Authentication and UI Design
 1. Secure Django Authentication (Login/Logout/Registration).
 2. Advanced **OTP-based Forgot Password** flow using Brevo SMTP (configured with strict timeout rules and Port 2525 proxying for cloud-native worker stability).
-3. UI employs a **"Midnight Glassmorphism"** aesthetic leveraging inline Wikimedia AMU Gate assets.
-4. Custom HTML Email templates for professional security interactions.
+3. **Password Visibility Toggles**: Interactive eye-icons on all authentication forms (Login, Register, Reset) for better user experience.
+4. UI employs a **"Midnight Glassmorphism"** aesthetic leveraging inline Wikimedia AMU Gate assets.
+5. Custom HTML Email templates for professional security interactions.
 
 ### 4.2 Study Materials & Curriculum
 1. Rich-text editor integrated content publication (django-ckeditor).
@@ -57,8 +58,10 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 1. Instant categorization: correct, incorrect, not attempted.
 2. Performance percentiles mapped strictly against cohort metrics.
 3. Per-question review rendering clean dynamic stacks of explanation images directly fetched via Cloudinary.
-4. **Persistent Historical Vault**: Total test performance metadata is permanently injected into the database via backend serialization, allowing users to historically recreate dynamic result reports.
-5. Fractional float scoring supporting strict negative marking matrices.
+4. **Smart Video Remediation**: Automatically displays targeted YouTube video explanations exclusively for questions the student answered incorrectly or left blank.
+5. **Interactive Alternate Questions**: Admin-defined alternate questions (with A/B/C/D interactive radio buttons and dropdown explanation toggles) displayed beneath remediation videos to instantly test concept mastery.
+6. **Persistent Historical Vault**: Total test performance metadata is permanently injected into the database via backend serialization, allowing users to historically recreate dynamic result reports.
+7. Fractional float scoring supporting strict negative marking matrices.
 
 ### 4.6 Profile and Analytics Container
 1. Robust drag-and-drop avatar framing persisting X/Y crop coordinates (`photo_position_x`, `photo_position_y`).
@@ -67,7 +70,7 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 
 ### 4.7 Admin Bulk Ingestion & Management
 1. **Jazzmin Dashboard**: The entire administrative pipeline is supercharged by `django-jazzmin`, featuring custom white-and-purple aesthetics mimicking modern SaaS metrics panels.
-2. Threaded `ThreadPoolExecutor` parsing architecture pushing 15+ API requests simultaneously.
+2. Threaded `ThreadPoolExecutor` parsing architecture pushing 15+ API requests simultaneously. Seamlessly supports dynamic column fallbacks (e.g., `question` vs `text` headers) and custom remediation fields (`youtube_link`, `alternate_image`, `alternate_explanation_image`).
 3. Background Upload Supervisor gracefully utilizing Python's native `logging` daemon so heavy extractions do not crash Render HTTP instances.
 4. Active `CONN_HEALTH_CHECKS` explicitly preventing database SSL drops over long-running proxy connections.
 
@@ -79,7 +82,7 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 ## 6. Data Model Overview
 1. `Course`: Name.
 2. `MockTest`: Course FK, Year, Duration.
-3. `Question`: MockTest FK, MCQ fields, Cloudinary Textual Arrays.
+3. `Question`: MockTest FK, MCQ fields, Cloudinary Textual Arrays, Video Links, and Custom Alternate Image references.
 4. `Result`: User FK, Fractional float logic, JSON Vault metric storage.
 5. `UserProfile`: Auth User FK, Avatar Cloudinary payloads, Interactive X/Y offsets, Native Educational Parameters.
 6. `PasswordResetOTP`: Ephemeral numeric storage linked to User objects.
@@ -99,4 +102,4 @@ Enable AMU aspirants to practice previous-year-style exams in a hyper-realistic,
 2. Attempt history line-charts in the Dashboard.
 
 ---
-*Updated May 10, 2026: Architecturally modified to document the integration of Study Materials, Practice Quizzes, Brevo SMTP OTP mechanics, Dynamic Mock Palette Rendering, and the custom Jazzmin Administrative framework.*
+*Updated May 12, 2026: Architecturally modified to document the integration of Smart Video Remediation, Custom Alternate Practice Images, Password Visibility UI, and dynamic Excel header fallbacks.*
