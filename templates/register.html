@@ -33,13 +33,23 @@
         <!-- Password -->
         <div class="mb-3">
             <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" required>
+            <div class="input-group">
+                <input type="password" name="password" id="regPassword" class="form-control" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('regPassword', 'eyeIconReg')">
+                    <i class="bi bi-eye" id="eyeIconReg"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Confirm Password -->
         <div class="mb-3">
             <label class="form-label">Confirm Password</label>
-            <input type="password" name="confirm_password" class="form-control" required>
+            <div class="input-group">
+                <input type="password" name="confirm_password" id="regConfirmPassword" class="form-control" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('regConfirmPassword', 'eyeIconConfirm')">
+                    <i class="bi bi-eye" id="eyeIconConfirm"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Register Button -->
@@ -50,6 +60,22 @@
         </div>
 
     </form>
+
+    <script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+    </script>
 
     <p class="text-center mt-3">
         Already have an account?

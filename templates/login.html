@@ -29,7 +29,12 @@
 
         <div class="mb-3">
           <label class="form-label">Password</label>
-          <input type="password" name="password" class="form-control" required>
+          <div class="input-group">
+            <input type="password" name="password" id="loginPassword" class="form-control" required>
+            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('loginPassword', 'eyeIconLogin')">
+              <i class="bi bi-eye" id="eyeIconLogin"></i>
+            </button>
+          </div>
           <div class="text-end mt-1">
             <a href="{% url 'forgot_password' %}" class="small text-decoration-none" style="color: var(--primary);">Forgot Password?</a>
           </div>
@@ -42,6 +47,22 @@
         </div>
 
       </form>
+
+      <script>
+      function togglePassword(inputId, iconId) {
+          const input = document.getElementById(inputId);
+          const icon = document.getElementById(iconId);
+          if (input.type === 'password') {
+              input.type = 'text';
+              icon.classList.remove('bi-eye');
+              icon.classList.add('bi-eye-slash');
+          } else {
+              input.type = 'password';
+              icon.classList.remove('bi-eye-slash');
+              icon.classList.add('bi-eye');
+          }
+      }
+      </script>
 
       <hr>
 

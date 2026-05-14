@@ -181,7 +181,7 @@
 
 						</div>
 
-                        {% if item.question.youtube_link %}
+                        {% if item.question.youtube_link and not item.is_correct %}
                         <div class="mt-4 p-3 bg-light rounded text-center border">
                             <h6 class="text-danger fw-bold"><i class="bi bi-youtube"></i> Video Explanation</h6>
                             <p class="text-muted small">Watch this video to understand the concepts for this question.</p>
